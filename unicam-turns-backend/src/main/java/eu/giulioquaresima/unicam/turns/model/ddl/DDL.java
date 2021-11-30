@@ -13,7 +13,10 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.schema.TargetType;
 import org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy;
 
-import eu.giulioquaresima.unicam.turns.model.Tenant;
+import eu.giulioquaresima.unicam.turns.model.entities.Location;
+import eu.giulioquaresima.unicam.turns.model.entities.Session;
+import eu.giulioquaresima.unicam.turns.model.entities.Tenant;
+import eu.giulioquaresima.unicam.turns.model.entities.Ticket;
 
 public class DDL
 {
@@ -27,7 +30,10 @@ public class DDL
 				.build();
 		
 		MetadataSources metadataSources = new MetadataSources(serviceRegistry);
+		metadataSources.addAnnotatedClass(Location.class);
+		metadataSources.addAnnotatedClass(Session.class);
 		metadataSources.addAnnotatedClass(Tenant.class);
+		metadataSources.addAnnotatedClass(Ticket.class);
 		Metadata metadata = metadataSources.buildMetadata();
 
 		SchemaExport schemaExport = new SchemaExport();
