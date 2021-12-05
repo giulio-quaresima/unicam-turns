@@ -14,4 +14,7 @@ public class Service extends AbstractEntity<Service>
 {
 	@ManyToOne
 	private Location location;
+	
+	@ManyToOne
+	private SessionScheduling sessionScheduler;
 }

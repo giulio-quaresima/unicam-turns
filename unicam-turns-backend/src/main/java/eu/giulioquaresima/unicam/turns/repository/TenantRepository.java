@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.repo;
+package eu.giulioquaresima.unicam.turns.repository;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Tenant;
 

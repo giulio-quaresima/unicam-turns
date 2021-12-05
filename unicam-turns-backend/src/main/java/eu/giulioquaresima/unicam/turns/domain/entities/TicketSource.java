@@ -6,7 +6,7 @@ import javax.persistence.ManyToOne;
 /**
  * A source of tickets which regulates the access of a {@link Service}
  * provided by a {@link Location}: the ticket source is responsible
- * to generate tickets
+ * to generate tickets which users withdraw.
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
@@ -14,7 +14,10 @@ import javax.persistence.ManyToOne;
 public class TicketSource extends AbstractEntity<TicketSource>
 {
 	@ManyToOne
-	private Location location;
+	private Service service;
+	
+	@ManyToOne
+	private TicketSourceConfiguration ticketSourceConfiguration;
 	
 
 }

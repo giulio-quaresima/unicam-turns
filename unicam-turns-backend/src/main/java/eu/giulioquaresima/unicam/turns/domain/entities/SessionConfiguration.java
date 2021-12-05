@@ -10,5 +10,5 @@ import javax.persistence.Entity;
 @Entity
 public class SessionConfiguration extends AbstractEntity<SessionConfiguration>
 {
-
+	
 }

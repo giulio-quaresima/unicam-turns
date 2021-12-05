@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.repo;
+package eu.giulioquaresima.unicam.turns.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
