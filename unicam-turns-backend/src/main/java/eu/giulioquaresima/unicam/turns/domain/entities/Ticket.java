@@ -63,6 +63,11 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.session = session;
 	}
 
+	/**
+	 * This is the current rank of a ticket
+	 * 
+	 * @return
+	 */
 	public int getSeq()
 	{
 		return seq;

@@ -15,7 +15,7 @@ import java.util.Objects;
  * 
  * @see https://en.wikipedia.org/wiki/Bijective_numeration
  * 
- * @author Giulio Quaresima (giulio.quaresima--at--unipg.it, giulio.quaresima--at--gmail.com)
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 public class BijectiveNumeration
 {

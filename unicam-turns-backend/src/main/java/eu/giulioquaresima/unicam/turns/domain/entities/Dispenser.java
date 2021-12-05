@@ -12,8 +12,5 @@ import javax.persistence.ManyToOne;
 public class Dispenser extends AbstractEntity<Dispenser>
 {
 	@ManyToOne
-	private Location location;
-	
-	@ManyToOne // TODO Forse non mi serve
-	private Ticket next;
+	private TicketSource ticketSource;
 }
