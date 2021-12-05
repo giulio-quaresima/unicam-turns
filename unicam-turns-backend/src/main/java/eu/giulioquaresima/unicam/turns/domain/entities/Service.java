@@ -4,17 +4,14 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 /**
- * A source of tickets which regulates the access of a {@link Service}
- * provided by a {@link Location}: the ticket source is responsible
- * to generate tickets
+ * The kind of a service provided by the {@link Tenant}
+ * in a {@link Location}.
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
-public class TicketSource extends AbstractEntity<TicketSource>
+public class Service extends AbstractEntity<Service>
 {
 	@ManyToOne
 	private Location location;
-	
-
 }

@@ -14,13 +14,20 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Ticket extends AbstractEntity<Ticket>
 {
-	@ManyToOne
+	@ManyToOne (optional = false)
 	private Session session;
+	
+	@ManyToOne
+	private User user;
+	
+	@ManyToOne
+	private ServiceReception serviceReception;
 	
 	private int seq;
 	
 	@Column (length = 8)
 	private String label;
+	
 
 	@Override
 	protected int compareNotEqual(Ticket otherEntity)
