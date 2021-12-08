@@ -2,20 +2,15 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.MapKeyEnumerated;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.SortNatural;
@@ -99,7 +94,7 @@ public class SessionScheduling extends AbstractEntity<SessionScheduling>
 		{
 			this.startTime = startTime;
 		}
-
+		
 		public Duration getDuration()
 		{
 			return duration;

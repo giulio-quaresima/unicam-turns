@@ -8,8 +8,19 @@
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
     http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd ">
     
-    <changeSet id="01-001-create" author="giulio">
+    <changeSet id="0.0.1-001-create" author="giulio-quaresima">
+    	<comment>Schema creation (DDL)</comment>
     	<sqlFile path="create.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    
+    <changeSet id="0.0.1-001-some-data" author="giulio-quaresima">
+    	<comment>Default data</comment>
+    	<insert tableName="tenant">
+    		<column name="name">Superconti Camerino</column>
+    	</insert>
+    	<insert tableName="tenant">
+    		<column name="name">Studio Medico "Lo spergiuro di Ippocrate"</column>
+    	</insert>
     </changeSet>
     
 </databaseChangeLog>

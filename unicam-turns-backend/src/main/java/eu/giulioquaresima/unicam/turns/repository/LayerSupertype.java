@@ -7,6 +7,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 import eu.giulioquaresima.unicam.turns.domain.entities.AbstractEntity;
 
 @NoRepositoryBean
-public interface LayerSupertype<E extends AbstractEntity<?>> extends JpaRepository<E, Integer>, JpaSpecificationExecutor<E>
+public interface LayerSupertype<E extends AbstractEntity<?>> extends JpaRepository<E, Long>, JpaSpecificationExecutor<E>
 {
 }
