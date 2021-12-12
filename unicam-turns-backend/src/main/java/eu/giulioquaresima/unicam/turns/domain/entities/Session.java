@@ -48,7 +48,9 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn (name = Ticket.INDEX_COLUMN)
 	private List<Ticket> tickets = new ArrayList<>();
 	
-	private int lastWithdrawnTicket = 0;
+	private int lastWithdrawnTicketIndex = -1;
+	
+	private int currentTicketNumberLength;
 	
 	@OneToMany
 	@MapKey (name = "assignedReception")
@@ -57,41 +59,51 @@ public class Session extends AbstractEntity<Session>
 	public Ticket withraw(User user)
 	{
 		TicketSourceConfiguration ticketSourceConfiguration = sessionConfiguration.getTicketSourceConfiguration();
+		BijectiveBaseKNumeration bijectiveBaseKNumeration = ticketSourceConfiguration.getBijectiveBaseKNumeration();
 		if (ticketSourceConfiguration.isScrambleTickets())
 		{
-			BijectiveBaseKNumeration bijectiveBaseKNumeration = ticketSourceConfiguration.getBijectiveBaseKNumeration();
-			grow();
+			if ((lastWithdrawnTicketIndex + 1) == tickets.size())
+			{
+				// Grow!
+				if (tickets.isEmpty())
+				{
+					currentTicketNumberLength = 2;
+				}
+				else
+				{
+					currentTicketNumberLength++;
+				}
+				BiFunction<Long, String, Ticket> mapper = (natural, number) -> new Ticket(this, number);
+				List<Ticket> newTickets = bijectiveBaseKNumeration
+						.sequence(bijectiveBaseKNumeration.sequenceRangeInterval(currentTicketNumberLength), mapper)
+						.collect(Collectors.toList())
+						;
+				Collections.shuffle(newTickets);
+				tickets.addAll(newTickets);
+			}
+			Ticket ticket = tickets.get(++lastWithdrawnTicketIndex);
+			ticket.setUser(user);
+			return ticket;
 		}
 		else
 		{
 			Ticket ticket = new Ticket();
 			ticket.setSession(this);
-			ticket.setNumber(Integer.valueOf(tickets.size()).toString());
+			ticket.setUser(user);
+			if (ticketSourceConfiguration.isUseBijectiveNumeration())
+			{
+				ticket.setNumber(bijectiveBaseKNumeration.format(tickets.size()));				
+			}
+			else
+			{
+				ticket.setNumber(Integer.valueOf(tickets.size()).toString());
+			}
 			tickets.add(ticket);
+			lastWithdrawnTicketIndex++;
+			currentTicketNumberLength = ticket.getNumber().length();
 			return ticket;
 		}
-		return null; // TODO
 	}
 
-	protected void grow()
-	{
-		BijectiveBaseKNumeration bijectiveBaseKNumeration = sessionConfiguration.getTicketSourceConfiguration().getBijectiveBaseKNumeration();
-		int length = bijectiveBaseKNumeration.format(lastWithdrawnTicket).length();
-		long[] range = bijectiveBaseKNumeration.sequenceRangeInterval(length);
-		if (tickets.size() == range[1])
-		{
-			// Grow!
-			length++;
-			BiFunction<Long, String, Ticket> mapper = (natural, number) -> new Ticket(this, number);
-			List<Ticket> newTickets = bijectiveBaseKNumeration
-					.sequence(bijectiveBaseKNumeration.sequenceRangeInterval(length), mapper)
-					.collect(Collectors.toList())
-					;
-			Collections.shuffle(newTickets);
-			tickets.addAll(newTickets);
-		}
-	}
-	
-	
 
 }

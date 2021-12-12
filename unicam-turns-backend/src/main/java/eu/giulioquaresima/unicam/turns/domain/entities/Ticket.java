@@ -111,5 +111,23 @@ public class Ticket extends AbstractEntity<Ticket>
 	{
 		this.number = number;
 	}
+
+	public ServiceReception getAssignedReception()
+	{
+		return assignedReception;
+	}
+	public void setAssignedReception(ServiceReception assignedReception)
+	{
+		this.assignedReception = assignedReception;
+	}
+
+	public User getUser()
+	{
+		return user;
+	}
+	public void setUser(User user)
+	{
+		this.user = user;
+	}
 	
 }
