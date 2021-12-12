@@ -11,6 +11,15 @@ import eu.giulioquaresima.unicam.turns.utils.BijectiveNumeration;
 
 public class Examples
 {
+	public static int[] sequenceRange(int base, int size)
+	{
+		if (size < 2)
+		{
+			return new int[] {0,base};
+		}
+		int[] prev = sequenceRange(base, size-1);
+		return new int[] {prev[1]+1, prev[1]+((int) Math.pow(base, size))};
+	}
 	public static List<String> sequence(char[] digits, int size)
 	{
 		if (size < 1 || size > 6)
@@ -18,15 +27,9 @@ public class Examples
 			throw new IllegalArgumentException("Invalid size");
 		}
 		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(digits);
-		char[] first = new char[size];
-		char[] last = new char[size];
-		Arrays.fill(first, digits[0]);
-		Arrays.fill(last, digits[digits.length - 1]);
+		int[] range = sequenceRange(digits.length, size);
 		return LongStream
-				.rangeClosed(
-						bijectiveNumeration.parse(String.valueOf(first)), 
-						bijectiveNumeration.parse(String.valueOf(last))
-						)
+				.rangeClosed(range[0],range[1])
 				.mapToObj(Long::valueOf)
 				.map(bijectiveNumeration::format)
 				.collect(Collectors.toList())
@@ -34,7 +37,7 @@ public class Examples
 	}
 	public static void main(String[] args)
 	{
-		List<String> tickets = sequence("0123456789ABCDEFGH".toCharArray(), 2);
+		List<String> tickets = sequence("0123456789ABCDEF".toCharArray(), 2);
 		for (int i = 0; i < tickets.size(); i++)
 		{
 			System.out.printf("%5d : %s\n", i, tickets.get(i));

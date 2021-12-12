@@ -22,6 +22,7 @@ public class PersistenceConfig
 		
 		springLiquibase.setDataSource(dataSource);
 		springLiquibase.setChangeLog("classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml");
+		springLiquibase.setContexts("development"); // FIXME change it to sth environment-dependant
 		springLiquibase.setDropFirst(true);
 		
 		return springLiquibase;

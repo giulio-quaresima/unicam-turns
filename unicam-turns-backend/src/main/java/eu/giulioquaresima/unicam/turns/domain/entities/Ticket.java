@@ -2,7 +2,11 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import eu.giulioquaresima.unicam.turns.utils.Comparators;
 
 /**
  * 
@@ -14,20 +18,37 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Ticket extends AbstractEntity<Ticket>
 {
+	public static final String INDEX_COLUMN = "ticket_index";
+	public static final String SERVICE_RECEPTION_FK_COLUMN = "service_reception_id";
+	
+	@Column (name = INDEX_COLUMN, insertable = false, updatable = false)
+	private Integer index;
+	
+	@ManyToOne
+	@JoinColumn (name = SERVICE_RECEPTION_FK_COLUMN)
+	private ServiceReception assignedReception;
+	
 	@ManyToOne (optional = false)
+	@NotNull
 	private Session session;
 	
 	@ManyToOne
 	private User user;
 	
-	@ManyToOne
-	private ServiceReception serviceReception;
-	
-	private int seq;
-	
-	@Column (length = 8)
-	private String label;
-	
+	@Column (length = 8, nullable = false)
+	private String number;
+
+	public Ticket()
+	{
+		super();
+	}
+
+	public Ticket(@NotNull Session session, String number)
+	{
+		this();
+		this.session = session;
+		this.number = number;
+	}
 
 	@Override
 	protected int compareNotEqual(Ticket otherEntity)
@@ -49,7 +70,7 @@ public class Ticket extends AbstractEntity<Ticket>
 			
 			if (compare == 0)
 			{
-				compare = getSeq() - otherEntity.getSeq();
+				compare = Comparators.integerNullsLastComparator().compare(getIndex(), otherEntity.getIndex());
 			}
 			
 			if (compare != 0)
@@ -70,27 +91,22 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.session = session;
 	}
 
-	/**
-	 * This is the current rank of a ticket
-	 * 
-	 * @return
-	 */
-	public int getSeq()
+	public Integer getIndex()
 	{
-		return seq;
+		return index;
 	}
-	public void setSeq(int seq)
+	public void setIndex(Integer index)
 	{
-		this.seq = seq;
+		this.index = index;
 	}
 
-	public String getLabel()
+	public String getNumber()
 	{
-		return label;
+		return number;
 	}
-	public void setLabel(String label)
+	public void setNumber(String number)
 	{
-		this.label = label;
+		this.number = number;
 	}
 	
 }

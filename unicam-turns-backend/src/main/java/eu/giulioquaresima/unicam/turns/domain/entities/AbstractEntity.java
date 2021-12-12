@@ -1,27 +1,25 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
+import java.time.Instant;
 import java.util.Comparator;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 import org.springframework.lang.Nullable;
 
 @MappedSuperclass
 public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Comparable<E>
-{
-	/**
-	 * A <em>consistent with equals</em>, nulls last comparator.
-	 */
-	public static final Comparator<AbstractEntity<?>> NULLS_LAST_COMPARATOR = Comparator.nullsLast(
-			Comparator.comparing(AbstractEntity::getId, Comparator.nullsLast(Comparator.naturalOrder()))
-			);
-	
+{	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	@Version
+	private Instant version;
 
 	public Long getId()
 	{
@@ -77,7 +75,7 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 	 * behavior, delegating the non-equality comparison to {@link #compareNotEqual(AbstractEntity)}.
 	 * This method is declared final to force the consistency of the entities' Comparable implementation: 
 	 * the developer who needs for some reason to compare entities with some <em>not consistent with equals</em>
-	 * logic should implements a {@link Comparator}.
+	 * logic may implement a {@link Comparator}.
 	 * 
 	 * @param otherEntity
 	 * 
@@ -100,6 +98,15 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 		}
 		return compare;
 	}
+
+	/**
+	 * A nulls-last comparator which simply compares the ids: this comparator is not
+	 * <em>consistent-with-equals</em>, so its visibility is protected.
+	 */
+	protected static final Comparator<AbstractEntity<?>> NULLS_LAST_COMPARATOR = Comparator.nullsLast(
+			Comparator.comparing(AbstractEntity::getId, Comparator.nullsLast(Comparator.naturalOrder()))
+			)
+			;
 
 	/**
 	 * A comparator which addresses the not-equals case only, so it should

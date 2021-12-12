@@ -13,4 +13,6 @@ public class ServiceReception extends AbstractEntity<ServiceReception>
 {
 	@ManyToOne
 	private Service service;
+	
+	private String label;
 }

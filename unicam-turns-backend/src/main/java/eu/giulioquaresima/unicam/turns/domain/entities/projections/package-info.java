@@ -1,0 +1,1 @@
+package eu.giulioquaresima.unicam.turns.domain.entities.projections;
