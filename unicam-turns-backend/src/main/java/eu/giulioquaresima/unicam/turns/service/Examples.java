@@ -7,7 +7,7 @@ import java.util.stream.LongStream;
 
 import org.bouncycastle.util.Arrays;
 
-import eu.giulioquaresima.unicam.turns.utils.BijectiveNumeration;
+import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 
 public class Examples
 {
@@ -26,7 +26,7 @@ public class Examples
 		{
 			throw new IllegalArgumentException("Invalid size");
 		}
-		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(digits);
+		BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration(digits);
 		int[] range = sequenceRange(digits.length, size);
 		return LongStream
 				.rangeClosed(range[0],range[1])

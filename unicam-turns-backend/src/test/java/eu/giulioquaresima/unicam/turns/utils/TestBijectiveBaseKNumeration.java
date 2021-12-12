@@ -6,16 +6,17 @@ import java.util.stream.LongStream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.bouncycastle.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestBijectiveNumeration
+public class TestBijectiveBaseKNumeration
 {
 	@Test
 	public void testPow()
 	{
-		Assertions.assertEquals(1, BijectiveNumeration.pow(46857286, 0));
-		Assertions.assertEquals(256, BijectiveNumeration.pow(2, 8));
+		Assertions.assertEquals(1, BijectiveBaseKNumeration.pow(46857286, 0));
+		Assertions.assertEquals(256, BijectiveBaseKNumeration.pow(2, 8));
 	}
 	
 	/**
@@ -26,14 +27,14 @@ public class TestBijectiveNumeration
 	@Test
 	public void testNeedForLocalPowImplementation()
 	{
-		Assertions.assertNotEquals(((long) Math.pow(15, 16)), BijectiveNumeration.pow(15, 16));
-		Assertions.assertNotEquals(((long) StrictMath.pow(15, 16)), BijectiveNumeration.pow(15, 16));
+		Assertions.assertNotEquals(((long) Math.pow(15, 16)), BijectiveBaseKNumeration.pow(15, 16));
+		Assertions.assertNotEquals(((long) StrictMath.pow(15, 16)), BijectiveBaseKNumeration.pow(15, 16));
 	}
 	
 	@Test
 	public void simpleTest()
 	{
-		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration("ABC");
+		BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration("ABC");
 		Assertions.assertEquals("AACCBCBAACABBCC", bijectiveNumeration.format(8697135));
 		Assertions.assertEquals("AACBCBCAAABBBABCACCBCCCABBBCBAC", bijectiveNumeration.format(368716872687216L));
 		Assertions.assertEquals("ACACCCBBCCCBBACBCAACCABCBCBABABCCABACBBA", bijectiveNumeration.format(Long.MAX_VALUE));
@@ -42,9 +43,9 @@ public class TestBijectiveNumeration
 	@Test
 	public void testIfFunctionsAreInverse()
 	{
-		testIfFunctionsAreInverse(new BijectiveNumeration(BijectiveNumeration.DIGITS_STRING_ALPHA));
+		testIfFunctionsAreInverse(new BijectiveBaseKNumeration(BijectiveBaseKNumeration.DIGITS_STRING_ALPHA));
 	}
-	private void testIfFunctionsAreInverse(BijectiveNumeration bijectiveNumeration)
+	private void testIfFunctionsAreInverse(BijectiveBaseKNumeration bijectiveNumeration)
 	{
 		Random random = new Random(System.currentTimeMillis());
 		
@@ -64,10 +65,10 @@ public class TestBijectiveNumeration
 	@Test
 	public void testBig()
 	{
-		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(BijectiveNumeration.DIGITS_STRING_ALPHA);
+		BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration(BijectiveBaseKNumeration.DIGITS_STRING_ALPHA);
 		for (int count = 0; count < 256; count++)
 		{
-			String aVeryBigRandomBijectiveNumber = RandomStringUtils.random(RandomUtils.nextInt(100, 2000), BijectiveNumeration.DIGITS_STRING_ALPHA);
+			String aVeryBigRandomBijectiveNumber = RandomStringUtils.random(RandomUtils.nextInt(100, 2000), BijectiveBaseKNumeration.DIGITS_STRING_ALPHA);
 			BigInteger natural = bijectiveNumeration.parseBig(aVeryBigRandomBijectiveNumber);
 			Assertions.assertEquals(bijectiveNumeration.format(natural), aVeryBigRandomBijectiveNumber);
 			/*
@@ -81,7 +82,7 @@ public class TestBijectiveNumeration
 	@Test
 	public void testUnary()
 	{
-		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(BijectiveNumeration.DIGITS_STRING_UNARY);
+		BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration(BijectiveBaseKNumeration.DIGITS_STRING_UNARY);
 		for (int natural = 0; natural < 1024; natural++)
 		{
 			Assertions.assertEquals(natural, bijectiveNumeration.format(natural).length());
@@ -91,7 +92,7 @@ public class TestBijectiveNumeration
 	@Test
 	public void testUnsortedStringDigit()
 	{
-		BijectiveNumeration bijectiveNumeration = new BijectiveNumeration("4saghe9k5j7rb8i");
+		BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration("4saghe9k5j7rb8i");
 		testIfFunctionsAreInverse(bijectiveNumeration);
 	}
 	
@@ -99,7 +100,7 @@ public class TestBijectiveNumeration
 	public void testParseLongOverflow()
 	{
 		Assertions.assertThrows(IntegerOverflowException.class, () -> {			
-			BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(BijectiveNumeration.DIGITS_STRING_ALPHA);
+			BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration(BijectiveBaseKNumeration.DIGITS_STRING_ALPHA);
 			Assertions.assertEquals("CRPXNLSKVLJFHG", bijectiveNumeration.format(Long.MAX_VALUE));
 			Assertions.assertEquals(Long.MAX_VALUE, bijectiveNumeration.parse("CRPXNLSKVLJFHG"));
 			
@@ -112,7 +113,7 @@ public class TestBijectiveNumeration
 	public void testNumberFormatException()
 	{
 		Assertions.assertThrows(NumberFormatException.class, () -> {
-			BijectiveNumeration bijectiveNumeration = new BijectiveNumeration("ABC");
+			BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration("ABC");
 			bijectiveNumeration.parse("ABCDCBA"); // Note the 'D'
 		});
 	}
@@ -121,7 +122,7 @@ public class TestBijectiveNumeration
 	public void testInvalidStringOfDigits()
 	{
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
-			new BijectiveNumeration("ABCDCBA");
+			new BijectiveBaseKNumeration("ABCDCBA");
 		});
 	}
 	
@@ -131,7 +132,7 @@ public class TestBijectiveNumeration
 		int availableProcessors = Runtime.getRuntime().availableProcessors();
 		if (availableProcessors > 1)
 		{
-			BijectiveNumeration bijectiveNumeration = new BijectiveNumeration(BijectiveNumeration.DIGITS_STRING_ALPHA);
+			BijectiveBaseKNumeration bijectiveNumeration = new BijectiveBaseKNumeration(BijectiveBaseKNumeration.DIGITS_STRING_ALPHA);
 			long testSize = availableProcessors * 1024 * 1024; // 1048576 for each processor
 			long actual = LongStream.range(0, testSize)
 					.parallel()
@@ -148,10 +149,33 @@ public class TestBijectiveNumeration
 			Assertions.assertTrue(true);
 		}
 	}
+	
+	public void testSequenceRangeInterval()
+	{
+		for (int base = 1; base < 8; base++)
+		{
+			for (int length = 0; length < 8; length++)
+			{
+				char[] digits = new char[base];
+				System.arraycopy(
+						BijectiveBaseKNumeration.DIGITS_STRING_ALPHANUMERIC.toCharArray(), 
+						0, digits, 0, base);
+				BijectiveBaseKNumeration bijectiveBaseKNumeration = new BijectiveBaseKNumeration(digits);
+				char[] firstExpectedNumber = new char[length];
+				char[] lastExpectedNumber = new char[length];
+				Arrays.fill(firstExpectedNumber, digits[0]);
+				Arrays.fill(lastExpectedNumber, digits[base-1]);
+				long[] expectedRange = {
+						bijectiveBaseKNumeration.parse(firstExpectedNumber),
+						bijectiveBaseKNumeration.parse(lastExpectedNumber)};
+				Assertions.assertArrayEquals(expectedRange, bijectiveBaseKNumeration.sequenceRangeInterval(length));
+			}
+		}
+	}
 
 	public static void main(String[] args)
 	{
-		TestBijectiveNumeration _self = new TestBijectiveNumeration();
+		TestBijectiveBaseKNumeration _self = new TestBijectiveBaseKNumeration();
 		_self.testPow();
 		_self.testNeedForLocalPowImplementation();
 		_self.simpleTest();
@@ -163,5 +187,6 @@ public class TestBijectiveNumeration
 		_self.testNumberFormatException();
 		_self.testInvalidStringOfDigits();
 		_self.testConcurrency();
+		_self.testSequenceRangeInterval();
 	}
 }

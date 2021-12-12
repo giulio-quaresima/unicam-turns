@@ -6,6 +6,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.giulioquaresima.unicam.turns.utils.Comparators;
 
 /**
@@ -22,6 +24,7 @@ public class Ticket extends AbstractEntity<Ticket>
 	public static final String SERVICE_RECEPTION_FK_COLUMN = "service_reception_id";
 	
 	@Column (name = INDEX_COLUMN, insertable = false, updatable = false)
+	@JsonIgnore
 	private Integer index;
 	
 	@ManyToOne
