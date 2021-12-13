@@ -113,9 +113,6 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 	 * determine if {@code this} entity is less or greater than {@code otherEntity};
 	 * this implementation delegates to {@link #NULLS_LAST_COMPARATOR}. 
 	 * 
-	 * See {@link Ticket#compareNotEqual(Ticket)} to get an example of the correct way
-	 * to override this method.
-	 * 
 	 * @param otherEntity The entity to compare to, which is assured
 	 * to be not equal to {@code this}.
 	 * 

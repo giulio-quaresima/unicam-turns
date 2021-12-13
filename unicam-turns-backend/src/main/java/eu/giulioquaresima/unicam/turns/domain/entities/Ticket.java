@@ -1,35 +1,27 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
+import java.time.LocalDateTime;
+import java.util.Iterator;
+import java.util.function.UnaryOperator;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import eu.giulioquaresima.unicam.turns.utils.Comparators;
-
 /**
- * 
- * 
- * This entity compares by {@link Session} and then by {@link #getSeq()}.
+ * The double-linked-list of tickets of a {@link Session}.
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
-public class Ticket extends AbstractEntity<Ticket>
+public class Ticket extends AbstractEntity<Ticket> implements Iterable<Ticket>
 {
-	public static final String INDEX_COLUMN = "ticket_index";
-	public static final String SERVICE_RECEPTION_FK_COLUMN = "service_reception_id";
-	
-	@Column (name = INDEX_COLUMN, insertable = false, updatable = false)
-	@JsonIgnore
-	private Integer index;
+	@ManyToOne
+	private Ticket previous;
 	
 	@ManyToOne
-	@JoinColumn (name = SERVICE_RECEPTION_FK_COLUMN)
-	private ServiceReception assignedReception;
+	private Ticket next;
 	
 	@ManyToOne (optional = false)
 	@NotNull
@@ -38,9 +30,19 @@ public class Ticket extends AbstractEntity<Ticket>
 	@ManyToOne
 	private User user;
 	
+	@ManyToOne
+	private ServiceReception assignedReception;
+	
 	@Column (length = 8, nullable = false)
 	private String number;
+	
+	private LocalDateTime withdrawTime;
 
+	private LocalDateTime drawTime;
+
+	@ManyToOne
+	private ServiceReception serviceReception;
+	
 	public Ticket()
 	{
 		super();
@@ -52,39 +54,77 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.session = session;
 		this.number = number;
 	}
-
-	@Override
-	protected int compareNotEqual(Ticket otherEntity)
+	
+	/**
+	 * Swap the position of {@code this} ticket
+	 * and the {@code other} in the tickets' linked
+	 * list.
+	 * 
+	 * @param other
+	 */
+	public void swap(Ticket other)
 	{
-		if (otherEntity != null)
+		if (other != null && !equals(other))
 		{
-			int compare = 0;
+			Ticket thisPrevious = getPrevious();
+			Ticket thisNext = getNext();
+			Ticket otherPrevious = other.getPrevious();
+			Ticket otherNext = other.getNext();
 			
-			Session thisSession = getSession();
-			Session otherSession = otherEntity.getSession();
-			if (thisSession != null)
+			// Consider the side effect of setPrevious (see)
+			
+			setPrevious(otherPrevious);
+			if (otherNext != null)
 			{
-				compare = thisSession.compareTo(otherSession);
+				otherNext.setPrevious(this);
 			}
-			else if (otherSession != null)
+			else
 			{
-				compare = - (otherSession.compareTo(thisSession));
+				setNext(null);
 			}
 			
-			if (compare == 0)
+			other.setPrevious(thisPrevious);
+			if (thisNext != null)
 			{
-				compare = Comparators.integerNullsLastComparator().compare(getIndex(), otherEntity.getIndex());
+				thisNext.setPrevious(other);
 			}
-			
-			if (compare != 0)
+			else
 			{
-				return compare;
+				other.setNext(null);
 			}
 		}
-		
-		return super.compareNotEqual(otherEntity);
 	}
-	
+
+	public Ticket getPrevious()
+	{
+		return previous;
+	}
+	public void setPrevious(Ticket previous)
+	{
+		if (equals(previous))
+		{
+			throw new IllegalArgumentException("Circular reference!");
+		}
+		this.previous = previous;
+		if (previous != null)
+		{
+			previous.setNext(this);
+		}
+	}
+
+	public Ticket getNext()
+	{
+		return next;
+	}
+	public void setNext(Ticket next)
+	{
+		if (equals(next))
+		{
+			throw new IllegalArgumentException("Circular reference!");
+		}
+		this.next = next;
+	}
+
 	public Session getSession()
 	{
 		return session;
@@ -92,15 +132,6 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setSession(Session session)
 	{
 		this.session = session;
-	}
-
-	public Integer getIndex()
-	{
-		return index;
-	}
-	public void setIndex(Integer index)
-	{
-		this.index = index;
 	}
 
 	public String getNumber()
@@ -128,6 +159,74 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setUser(User user)
 	{
 		this.user = user;
+	}
+
+	public LocalDateTime getWithdrawTime()
+	{
+		return withdrawTime;
+	}
+	public void setWithdrawTime(LocalDateTime withdrawTime)
+	{
+		this.withdrawTime = withdrawTime;
+	}
+
+	public LocalDateTime getDrawTime()
+	{
+		return drawTime;
+	}
+	public void setDrawTime(LocalDateTime drawTime)
+	{
+		this.drawTime = drawTime;
+	}
+	
+	public ServiceReception getServiceReception()
+	{
+		return serviceReception;
+	}
+	public void setServiceReception(ServiceReception serviceReception)
+	{
+		this.serviceReception = serviceReception;
+	}
+
+	@Override
+	public Iterator<Ticket> iterator()
+	{
+		return forwardIterator();
+	}
+	public Iterator<Ticket> forwardIterator()
+	{
+		return new DirectionableIterator(this, Ticket::getNext);
+	}
+	public Iterator<Ticket> backIterator()
+	{
+		return new DirectionableIterator(this, Ticket::getPrevious);
+	}
+	
+	public static class DirectionableIterator implements Iterator<Ticket>
+	{
+		private Ticket current;
+		private final UnaryOperator<Ticket> nextPointer;
+		
+		public DirectionableIterator(Ticket current, UnaryOperator<Ticket> nextPointer)
+		{
+			super();
+			this.current = current;
+			this.nextPointer = nextPointer;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return current != null;
+		}
+
+		@Override
+		public Ticket next()
+		{
+			Ticket returnee = current;
+			current = nextPointer.apply(returnee);
+			return returnee;
+		}
 	}
 	
 }
