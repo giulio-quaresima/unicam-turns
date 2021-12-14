@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.util.Assert;
@@ -43,6 +45,8 @@ public class Session extends AbstractEntity<Session>
 	private LocalDateTime endTime;
 	
 	@ElementCollection
+	@Column (length = 8)
+	@OrderColumn
 	private List<String> ticketNumbers = new ArrayList<>();
 	
 	@ManyToOne
@@ -113,6 +117,7 @@ public class Session extends AbstractEntity<Session>
 			Objects.requireNonNull(bijectiveBaseKNumeration, "Illegal state in TicketSourceConfiguration");
 			if (!ticketNumbers.isEmpty())
 			{
+				// number = ticketNumbers.remove(0); // Worse performance!
 				number = ticketNumbers.remove(ticketNumbers.size() - 1);
 			}
 			if (ticketNumbers.isEmpty())

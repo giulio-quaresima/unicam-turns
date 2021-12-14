@@ -2,6 +2,7 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import javax.persistence.Embeddable;
 import javax.persistence.PostLoad;
+import javax.persistence.Transient;
 
 import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 
@@ -22,7 +23,8 @@ public class TicketSourceConfiguration
 	private boolean scrambleTickets = false;
 	private boolean useBijectiveNumeration = false;
 	private char[] bijectiveNumerationDigits = null;
-	
+
+	@Transient
 	private BijectiveBaseKNumeration bijectiveBaseKNumeration;
 	
 	/**
