@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.function.UnaryOperator;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -17,10 +19,10 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Ticket extends AbstractEntity<Ticket> implements Iterable<Ticket>
 {
-	@ManyToOne
+	@OneToOne (cascade = CascadeType.ALL)
 	private Ticket previous;
 	
-	@ManyToOne
+	@OneToOne (cascade = CascadeType.ALL, mappedBy = "previous")
 	private Ticket next;
 	
 	@ManyToOne (optional = false)
@@ -106,10 +108,6 @@ public class Ticket extends AbstractEntity<Ticket> implements Iterable<Ticket>
 			throw new IllegalArgumentException("Circular reference!");
 		}
 		this.previous = previous;
-		if (previous != null)
-		{
-			previous.setNext(this);
-		}
 	}
 
 	public Ticket getNext()

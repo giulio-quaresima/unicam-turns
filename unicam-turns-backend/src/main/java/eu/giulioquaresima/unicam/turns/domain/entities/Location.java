@@ -1,7 +1,6 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -18,12 +17,24 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Location extends AbstractEntity<Location>
 {
+	private String name;
+	
 	@ManyToOne
 	private Tenant tenant;
 	
 	@NotNull
 	private String zoneId;
 	
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
 	public ZoneId getTimeZone()
 	{
 		if (zoneId != null)
@@ -45,8 +56,24 @@ public class Location extends AbstractEntity<Location>
 		}
 	}
 	
-	public static void main(String[] args)
+	public Tenant getTenant()
 	{
-		System.out.println(ZonedDateTime.now().getZone().getId());
+		return tenant;
 	}
+
+	public void setTenant(Tenant tenant)
+	{
+		this.tenant = tenant;
+	}
+
+	public String getZoneId()
+	{
+		return zoneId;
+	}
+
+	public void setZoneId(String zoneId)
+	{
+		this.zoneId = zoneId;
+	}
+
 }

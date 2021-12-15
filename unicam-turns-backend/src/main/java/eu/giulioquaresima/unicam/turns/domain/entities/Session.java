@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -49,7 +50,7 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn
 	private List<String> ticketNumbers = new ArrayList<>();
 	
-	@ManyToOne
+	@ManyToOne (cascade = CascadeType.ALL)
 	private Ticket lastWithdrawnTicket;
 
 	@ManyToOne
@@ -165,6 +166,86 @@ public class Session extends AbstractEntity<Session>
 		}
 		
 		return number;
+	}
+
+	public Service getService()
+	{
+		return service;
+	}
+
+	public void setService(Service service)
+	{
+		this.service = service;
+	}
+
+	public SessionConfiguration getSessionConfiguration()
+	{
+		return sessionConfiguration;
+	}
+
+	public void setSessionConfiguration(SessionConfiguration sessionConfiguration)
+	{
+		this.sessionConfiguration = sessionConfiguration;
+	}
+
+	public String getLabel()
+	{
+		return label;
+	}
+
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
+
+	public LocalDateTime getStartTime()
+	{
+		return startTime;
+	}
+
+	public void setStartTime(LocalDateTime startTime)
+	{
+		this.startTime = startTime;
+	}
+
+	public LocalDateTime getEndTime()
+	{
+		return endTime;
+	}
+
+	public void setEndTime(LocalDateTime endTime)
+	{
+		this.endTime = endTime;
+	}
+
+	public List<String> getTicketNumbers()
+	{
+		return ticketNumbers;
+	}
+
+	public void setTicketNumbers(List<String> ticketNumbers)
+	{
+		this.ticketNumbers = ticketNumbers;
+	}
+
+	public Ticket getLastWithdrawnTicket()
+	{
+		return lastWithdrawnTicket;
+	}
+
+	public void setLastWithdrawnTicket(Ticket lastWithdrawnTicket)
+	{
+		this.lastWithdrawnTicket = lastWithdrawnTicket;
+	}
+
+	public Ticket getLastDrawnTicket()
+	{
+		return lastDrawnTicket;
+	}
+
+	public void setLastDrawnTicket(Ticket lastDrawnTicket)
+	{
+		this.lastDrawnTicket = lastDrawnTicket;
 	}
 
 }

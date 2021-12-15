@@ -18,17 +18,4 @@
     	<sqlFile path="0.0.1-001-ddl-postgresql.sql" relativeToChangelogFile="true"/>
     </changeSet>
     
-    <changeSet id="0.0.1-002-some-data" author="giulio-quaresima" dbms="h2">
-    	<comment>Default data</comment>
-    	<insert tableName="tenant">
-    		<column name="name">Superconti Camerino</column>
-    	</insert>
-    	<insert tableName="tenant">
-    		<column name="name">Studio commerciale "l'elusionista"</column>
-    	</insert>
-    	<insert tableName="tenant">
-    		<column name="name">Studio Medico "Lo spergiuro di Ippocrate"</column>
-    	</insert>
-    </changeSet>
-    
 </databaseChangeLog>

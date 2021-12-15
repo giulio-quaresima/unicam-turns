@@ -13,6 +13,17 @@ public class Tenant extends AbstractEntity<Tenant>
 {
 	private String name;
 
+	public Tenant()
+	{
+		super();
+	}
+
+	public Tenant(String name)
+	{
+		this();
+		this.name = name;
+	}
+
 	public String getName()
 	{
 		return name;

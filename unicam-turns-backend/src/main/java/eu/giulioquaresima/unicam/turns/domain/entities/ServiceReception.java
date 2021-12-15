@@ -14,5 +14,6 @@ public class ServiceReception extends AbstractEntity<ServiceReception>
 	@ManyToOne
 	private Service service;
 	
+	@SuppressWarnings("unused")
 	private String label;
 }
