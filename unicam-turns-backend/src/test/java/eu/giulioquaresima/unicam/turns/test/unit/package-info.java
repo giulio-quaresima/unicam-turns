@@ -4,4 +4,4 @@
 /**
  * Unit tests only.
  */
-package eu.giulioquaresima.unicam.turns.test.trest.unit;
+package eu.giulioquaresima.unicam.turns.test.unit;
