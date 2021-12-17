@@ -4,4 +4,4 @@
 /**
  * "trest" is a crasis between "test" and "rest", so it means "rest test" ;) 
  */
-package eu.giulioquaresima.unicam.turns.test.trest;
+package eu.giulioquaresima.unicam.turns.test.integration.trest;

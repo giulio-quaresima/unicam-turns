@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.test.trest;
+package eu.giulioquaresima.unicam.turns.test.integration.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
