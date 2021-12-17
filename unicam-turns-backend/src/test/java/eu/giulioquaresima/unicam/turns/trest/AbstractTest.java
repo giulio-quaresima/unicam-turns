@@ -16,12 +16,14 @@ import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.SessionConfiguration;
 import eu.giulioquaresima.unicam.turns.domain.entities.Tenant;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketSourceConfiguration;
+import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.repository.LocationRepository;
 import eu.giulioquaresima.unicam.turns.repository.ServiceRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionConfigurationRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 import eu.giulioquaresima.unicam.turns.repository.TenantRepository;
 import eu.giulioquaresima.unicam.turns.repository.TicketRepository;
+import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
 public class AbstractTest
 {
@@ -37,6 +39,8 @@ public class AbstractTest
 	protected SessionConfigurationRepository sessionConfigurationRepository;
 	@Autowired
 	protected TicketRepository ticketRepository;
+	@Autowired
+	protected UserRepository userRepository;
 	
 	@BeforeEach
 	public void commodityData()
@@ -69,6 +73,12 @@ public class AbstractTest
 		service.setName("Accettazione");
 		service.setLocation(createLocation());
 		return serviceRepository.save(service);
+	}
+	
+	protected User createUser(String givenName, String familyName)
+	{
+		User user = new User(givenName, familyName);
+		return userRepository.save(user);
 	}
 	
 	protected Service findTestService()
