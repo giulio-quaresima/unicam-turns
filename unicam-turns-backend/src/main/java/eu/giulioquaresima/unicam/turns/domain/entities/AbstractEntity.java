@@ -1,6 +1,5 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
-import java.time.Instant;
 import java.util.Comparator;
 
 import javax.persistence.GeneratedValue;
@@ -19,7 +18,7 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 	private Long id;
 	
 	@Version
-	private Instant version;
+	private Long version;
 
 	public Long getId()
 	{
@@ -113,7 +112,7 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 	 * determine if {@code this} entity is less or greater than {@code otherEntity};
 	 * this implementation delegates to {@link #NULLS_LAST_COMPARATOR}. 
 	 * 
-	 * @param otherEntity The entity to compare to, which is assured
+	 * @param otherEntity The entity to compare to, which is guaranteed
 	 * to be not equal to {@code this}.
 	 * 
 	 * @return A nonzero value.

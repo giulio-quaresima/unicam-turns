@@ -3,7 +3,6 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -13,10 +12,9 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.validation.constraints.NotNull;
-
-import org.springframework.util.Assert;
 
 import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 
@@ -50,11 +48,13 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn
 	private List<String> ticketNumbers = new ArrayList<>();
 	
-	@ManyToOne (cascade = CascadeType.ALL)
-	private Ticket lastWithdrawnTicket;
+	private Integer lastWithdrawnTicket;
 
-	@ManyToOne
-	private Ticket lastDrawnTicket;
+	private Integer lastDrawnTicket = -1;
+	
+	@OneToMany (mappedBy = "session", cascade = CascadeType.ALL)
+	@OrderColumn (name = "position")
+	private List<Ticket> tickets = new ArrayList<>();
 
 	public Ticket withraw(User user)
 	{
@@ -62,48 +62,27 @@ public class Session extends AbstractEntity<Session>
 		
 		ticket.setSession(this);
 		ticket.setUser(user);
-		ticket.setWithdrawTime(LocalDateTime.now());
-		
+		ticket.setWithdrawTime(LocalDateTime.now());		
 		ticket.setNumber(pollNewNumber());
 		
-		if (lastWithdrawnTicket != null)
-		{
-			ticket.setPrevious(lastWithdrawnTicket);
-		}
-		lastWithdrawnTicket = ticket;
+		tickets.add(ticket);
+		lastWithdrawnTicket = tickets.size() - 1;
 		
-		return lastWithdrawnTicket;
+		return ticket;
 	}
 	
 	public Ticket draw(ServiceReception serviceReception)
 	{
-		if (lastDrawnTicket == null)
+		for (int position = (lastDrawnTicket + 1); position < tickets.size(); position++)
 		{
-			if (lastWithdrawnTicket != null)
+			Ticket ticket = tickets.get(position);
+			if (ticket.isDrawnable())
 			{
-				Ticket first;
-				Iterator<Ticket> iterator = lastWithdrawnTicket.backIterator();
-				Assert.state(iterator.hasNext(), label);
-				do
-				{
-					first = iterator.next();
-				}
-				while (iterator.hasNext());
-				lastDrawnTicket = first;
+				lastDrawnTicket = position;
+				return ticket;
 			}
 		}
-		else
-		{
-			lastDrawnTicket = lastDrawnTicket.getNext();
-		}
-		
-		if (lastDrawnTicket != null)
-		{
-			lastDrawnTicket.setServiceReception(serviceReception);
-			lastDrawnTicket.setDrawTime(LocalDateTime.now());
-		}
-		
-		return lastDrawnTicket;
+		return null;
 	}
 
 	protected String pollNewNumber()
@@ -123,8 +102,9 @@ public class Session extends AbstractEntity<Session>
 			}
 			if (ticketNumbers.isEmpty())
 			{
+				int newTicketNumberLength = number == null ? 2 : number.length() + 1;
 				List<String> numbers = bijectiveBaseKNumeration
-						.sequence(bijectiveBaseKNumeration.sequenceRangeInterval(number == null ? 2 : number.length()))
+						.sequence(bijectiveBaseKNumeration.sequenceRangeInterval(newTicketNumberLength))
 						.collect(Collectors.toList());
 				Collections.shuffle(numbers);
 				numbers.forEach(ticketNumbers::add);
@@ -136,24 +116,7 @@ public class Session extends AbstractEntity<Session>
 		}
 		else
 		{
-			long lastValue;
-			
-			if (lastWithdrawnTicket == null)
-			{
-				lastValue = 0;
-			}
-			else
-			{
-				if (ticketSourceConfiguration.isUseBijectiveNumeration())
-				{
-					Objects.requireNonNull(bijectiveBaseKNumeration, "Illegal state in TicketSourceConfiguration");
-					lastValue = bijectiveBaseKNumeration.parse(lastWithdrawnTicket.getNumber());
-				}
-				else
-				{
-					lastValue = Integer.parseInt(lastWithdrawnTicket.getNumber());
-				}
-			}
+			long lastValue = tickets.size();
 			
 			if (ticketSourceConfiguration.isUseBijectiveNumeration())
 			{
@@ -172,7 +135,6 @@ public class Session extends AbstractEntity<Session>
 	{
 		return service;
 	}
-
 	public void setService(Service service)
 	{
 		this.service = service;
@@ -182,7 +144,6 @@ public class Session extends AbstractEntity<Session>
 	{
 		return sessionConfiguration;
 	}
-
 	public void setSessionConfiguration(SessionConfiguration sessionConfiguration)
 	{
 		this.sessionConfiguration = sessionConfiguration;
@@ -192,7 +153,6 @@ public class Session extends AbstractEntity<Session>
 	{
 		return label;
 	}
-
 	public void setLabel(String label)
 	{
 		this.label = label;
@@ -202,7 +162,6 @@ public class Session extends AbstractEntity<Session>
 	{
 		return startTime;
 	}
-
 	public void setStartTime(LocalDateTime startTime)
 	{
 		this.startTime = startTime;
@@ -212,7 +171,6 @@ public class Session extends AbstractEntity<Session>
 	{
 		return endTime;
 	}
-
 	public void setEndTime(LocalDateTime endTime)
 	{
 		this.endTime = endTime;
@@ -222,30 +180,36 @@ public class Session extends AbstractEntity<Session>
 	{
 		return ticketNumbers;
 	}
-
 	public void setTicketNumbers(List<String> ticketNumbers)
 	{
 		this.ticketNumbers = ticketNumbers;
 	}
 
-	public Ticket getLastWithdrawnTicket()
+	public Integer getLastWithdrawnTicket()
 	{
 		return lastWithdrawnTicket;
 	}
-
-	public void setLastWithdrawnTicket(Ticket lastWithdrawnTicket)
+	public void setLastWithdrawnTicket(Integer lastWithdrawnTicket)
 	{
 		this.lastWithdrawnTicket = lastWithdrawnTicket;
 	}
 
-	public Ticket getLastDrawnTicket()
+	public Integer getLastDrawnTicket()
 	{
 		return lastDrawnTicket;
 	}
-
-	public void setLastDrawnTicket(Ticket lastDrawnTicket)
+	public void setLastDrawnTicket(Integer lastDrawnTicket)
 	{
 		this.lastDrawnTicket = lastDrawnTicket;
+	}
+
+	public List<Ticket> getTickets()
+	{
+		return tickets;
+	}
+	public void setTickets(List<Ticket> tickets)
+	{
+		this.tickets = tickets;
 	}
 
 }

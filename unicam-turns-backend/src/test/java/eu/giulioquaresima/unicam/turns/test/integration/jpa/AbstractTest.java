@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Location;
 import eu.giulioquaresima.unicam.turns.domain.entities.Service;
@@ -27,6 +28,9 @@ import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
 public class AbstractTest
 {
+	@Autowired
+	protected TestEntityManager entityManager;
+	
 	@Autowired
 	protected TenantRepository tenantRepository;
 	@Autowired
@@ -99,17 +103,36 @@ public class AbstractTest
 		return session;
 	}
 	
-	protected Session createSequentialDecimalSession()
+	protected Session createSession(TicketSourceConfiguration ticketSourceConfiguration)
 	{
 		SessionConfiguration sessionConfiguration = new SessionConfiguration();
-		TicketSourceConfiguration ticketSourceConfiguration = new TicketSourceConfiguration();
-		ticketSourceConfiguration.setUseBijectiveNumeration(false);
 		sessionConfiguration.setTicketSourceConfiguration(ticketSourceConfiguration);
 		
 		Session session = initSessionCommons();
 		session.setSessionConfiguration(sessionConfigurationRepository.save(sessionConfiguration));
 		
 		return sessionRepository.save(session);
+	}
+	
+	protected Session createSequentialDecimalSession()
+	{
+		TicketSourceConfiguration ticketSourceConfiguration = new TicketSourceConfiguration();
+		ticketSourceConfiguration.setUseBijectiveNumeration(false);
+		return createSession(ticketSourceConfiguration);
+	}
+	
+	protected Session createSequentialBijectiveSession()
+	{
+		TicketSourceConfiguration ticketSourceConfiguration = new TicketSourceConfiguration();
+		ticketSourceConfiguration.setUseBijectiveNumeration(true);
+		return createSession(ticketSourceConfiguration);
+	}
+	
+	protected Session createSrambledSession()
+	{
+		TicketSourceConfiguration ticketSourceConfiguration = new TicketSourceConfiguration();
+		ticketSourceConfiguration.setScrambleTickets(true);
+		return createSession(ticketSourceConfiguration);
 	}
 	
 }
