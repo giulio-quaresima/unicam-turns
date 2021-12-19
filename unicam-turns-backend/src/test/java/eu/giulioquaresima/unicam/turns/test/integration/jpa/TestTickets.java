@@ -26,8 +26,8 @@ public class TestTickets extends AbstractTest
 		session.withraw(createUser("Daneel", "Olivaw"));		
 		List<Ticket> tickets = ticketRepository.findAll(JpaSort.of(Ticket_.id));
 		assertThat(tickets).size().isEqualTo(2);
-		assertThat(tickets.get(0).getUser().getFamilyName()).isEqualTo("Quaresima");
-		assertThat(tickets.get(1).getUser().getFamilyName()).isEqualTo("Olivaw");
+		assertThat(tickets.get(0).getOwner().getFamilyName()).isEqualTo("Quaresima");
+		assertThat(tickets.get(1).getOwner().getFamilyName()).isEqualTo("Olivaw");
 		assertThat(tickets.get(0).getNumber()).isEqualTo("1");
 		assertThat(tickets.get(1).getNumber()).isEqualTo("2");
 	}
@@ -54,20 +54,25 @@ public class TestTickets extends AbstractTest
 		}
 	}
 	
-//	@Test // FIXME
+	@Test
 	public void testTicketWithdrawScrambledBijective()
 	{
 		Session session = createSrambledSession();
 		BijectiveBaseKNumeration bijectiveBaseKNumeration = session.getSessionConfiguration().getTicketSourceConfiguration().getBijectiveBaseKNumeration();
 		assertThat(bijectiveBaseKNumeration).isNotNull();
 
-		int size = 1024;
-		for (int count = 0; count < size; count++)
+		// Complete range of all bijective numbers with 2 and 3 digits
+		char lessDigit = bijectiveBaseKNumeration.getDigits()[0];
+		char greaterDigit = bijectiveBaseKNumeration.getDigits()[bijectiveBaseKNumeration.getDigits().length - 1];
+		long startRange = bijectiveBaseKNumeration.parse(new char[] {lessDigit, lessDigit});
+		long endRange = bijectiveBaseKNumeration.parse(new char[] {greaterDigit, greaterDigit, greaterDigit});
+		
+		long size = (endRange - startRange) + 1;
+		for (long count = 0; count < size; count++)
 		{
-			System.out.println(session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8))));
+			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)));
 		}
 		
-		long startRange = bijectiveBaseKNumeration.parse(new char[] {bijectiveBaseKNumeration.getDigits()[0],bijectiveBaseKNumeration.getDigits()[0]});
 		Set<String> expectedNumbers = new HashSet<>();
 		bijectiveBaseKNumeration.sequence(startRange, startRange + size - 1).forEach(expectedNumbers::add);
 		assertThat(expectedNumbers).size().isEqualTo(size);
@@ -77,8 +82,7 @@ public class TestTickets extends AbstractTest
 		for (int count = 0; count < size; count++)
 		{
 			expectedNumbers.remove(tickets.get(count).getNumber());
-//			System.out.println(tickets.get(count));
 		}
-//		assertThat(expectedNumbers).isEmpty();
+		assertThat(expectedNumbers).isEmpty();
 	}
 }

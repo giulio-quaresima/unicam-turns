@@ -1,10 +1,12 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -15,6 +17,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 
@@ -29,6 +35,8 @@ import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 @Entity
 public class Session extends AbstractEntity<Session>
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Session.class);
+	
 	@ManyToOne
 	private Service service;
 	
@@ -48,38 +56,161 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn
 	private List<String> ticketNumbers = new ArrayList<>();
 	
-	private Integer lastWithdrawnTicket;
-
-	private Integer lastDrawnTicket = -1;
+	private int lastDrawnTicketIndex = -1;
+	
+	private Duration estimatedAverageWaitingDuration;
 	
 	@OneToMany (mappedBy = "session", cascade = CascadeType.ALL)
 	@OrderColumn (name = "position")
 	private List<Ticket> tickets = new ArrayList<>();
-
-	public Ticket withraw(User user)
+	
+	/**
+	 * Get the set of indexed tickets which pass the {@code filter} test
+	 * and fall inside the [from,to) interval.
+	 * 
+	 * @param filter The filter or criterion.
+	 * 
+	 * @param from The start index (inclusive).
+	 * 
+	 * @param to The end index (exclusive).
+	 * 
+	 * @return Never <code>null</code>.
+	 */
+	public List<IndexedTicket> indexedTickets(Predicate<Ticket> filter, int from, int to)
 	{
+		List<IndexedTicket> indexedTickets = new ArrayList<>();
+		from = Math.max(from, 0);
+		to = Math.min(to, tickets.size());
+		for (int index = from; index < to; index++)
+		{
+			Ticket ticket = tickets.get(index);
+			if (filter.test(ticket))
+			{
+				indexedTickets.add(new IndexedTicket(index, ticket));
+			}
+		}
+		return indexedTickets;
+	}
+	
+	/**
+	 * Get the set of indices of the tickets which are owned
+	 * by the passed user.
+	 * 
+	 * @param user The sought owner.
+	 * 
+	 * @return The indices of the owned tickets, empty if no ticket
+	 * is owned.
+	 * 
+	 * @see Ticket#isOwner(User)
+	 */
+	public List<IndexedTicket> ownedTickets(User user)
+	{
+		if (user != null)
+		{
+			return indexedTickets(ticket -> ticket.isOwner(user), 0, tickets.size());
+		}
+		return Collections.emptyList();
+	}
+	
+	/**
+	 * Get the set of indices of the tickets which are owned
+	 * by the passed user AND are waiting.
+	 * 
+	 * @param user The sought owner.
+	 * 
+	 * @return The only possible waiting ticket owned by {@code user}.
+	 * 
+	 * @see Ticket#isWaiting()
+	 */
+	public IndexedTicket waitingTicket(User user)
+	{
+		if (user != null)
+		{
+			Predicate<Ticket> filter = ticket -> ticket.isOwner(user);
+			filter = filter.and(ticket -> ticket.isWaiting());
+			List<IndexedTicket> indexedTickets = indexedTickets(
+					filter, 
+					lastDrawnTicketIndex + 1, // The drawn tickets are not alive 
+					tickets.size());
+			Assert.state(indexedTickets.size() < 2, "At most one ticket per user can be in the \"waiting\" state: there must be an error in state management of tickets");
+			if (!indexedTickets.isEmpty())
+			{
+				return indexedTickets.get(0);
+			}
+		}
+		return null;		
+	}
+
+	/**
+	 * Withdraw a ticket (the same act
+	 * as pulling the ticket from a dispenser).
+	 * 
+	 * @param user The user who withdrew the ticket.
+	 * 
+	 * @return The new ticket which has {@code user} set
+	 * has the owner, a number, a withdraw time, and so is
+	 * in its "waiting" state.
+	 */
+	public IndexedTicket withraw(User user)
+	{
+		IndexedTicket indexedTicket = waitingTicket(user);
+		if (indexedTicket != null)
+		{
+			if (LOGGER.isDebugEnabled())
+			{
+				LOGGER.debug("The user {} is triying to withraw a ticket while is already waiting for with another ticket: I return the currently waiting ticket.");
+			}
+			return indexedTicket;
+		}
+		
 		Ticket ticket = new Ticket();
 		
 		ticket.setSession(this);
-		ticket.setUser(user);
+		ticket.setOwner(user);
 		ticket.setWithdrawTime(LocalDateTime.now());		
 		ticket.setNumber(pollNewNumber());
 		
-		tickets.add(ticket);
-		lastWithdrawnTicket = tickets.size() - 1;
+		indexedTicket = new IndexedTicket(tickets.size(), ticket);
 		
-		return ticket;
+		tickets.add(ticket);
+		
+		return indexedTicket;
 	}
 	
-	public Ticket draw(ServiceReception serviceReception)
+	/**
+	 * The act of drawing the next waiting ticket assigning
+	 * it to a service reception
+	 * 
+	 * @param serviceReception The service reception to assign
+	 * the ticket to.
+	 * 
+	 * @return A no longer waiting ticket with a service reception
+	 * and a draw
+	 */
+	public IndexedTicket draw(ServiceReception serviceReception)
 	{
-		for (int position = (lastDrawnTicket + 1); position < tickets.size(); position++)
+		for (int position = (lastDrawnTicketIndex + 1); position < tickets.size(); position++)
 		{
 			Ticket ticket = tickets.get(position);
-			if (ticket.isDrawnable())
+			if (ticket.isWaiting())
 			{
-				lastDrawnTicket = position;
-				return ticket;
+				lastDrawnTicketIndex = position;
+				ticket.setServiceReception(serviceReception);
+				ticket.setDrawTime(LocalDateTime.now());
+				
+				Duration duration = Duration.between(ticket.getWithdrawTime(), ticket.getDrawTime());
+				if (estimatedAverageWaitingDuration == null)
+				{
+					estimatedAverageWaitingDuration = duration;
+				}
+				else
+				{
+					estimatedAverageWaitingDuration = duration
+							.plus(estimatedAverageWaitingDuration.multipliedBy(lastDrawnTicketIndex-1))
+							.dividedBy(lastDrawnTicketIndex);
+				}
+				
+				return new IndexedTicket(lastDrawnTicketIndex, ticket);
 			}
 		}
 		return null;
@@ -185,22 +316,21 @@ public class Session extends AbstractEntity<Session>
 		this.ticketNumbers = ticketNumbers;
 	}
 
-	public Integer getLastWithdrawnTicket()
+	public Integer getLastDrawnTicketIndex()
 	{
-		return lastWithdrawnTicket;
+		return lastDrawnTicketIndex;
 	}
-	public void setLastWithdrawnTicket(Integer lastWithdrawnTicket)
+	public void setLastDrawnTicketIndex(Integer lastDrawnTicketIndex)
 	{
-		this.lastWithdrawnTicket = lastWithdrawnTicket;
+		this.lastDrawnTicketIndex = lastDrawnTicketIndex;
 	}
-
-	public Integer getLastDrawnTicket()
+	public IndexedTicket getLastDrawnTicket()
 	{
-		return lastDrawnTicket;
-	}
-	public void setLastDrawnTicket(Integer lastDrawnTicket)
-	{
-		this.lastDrawnTicket = lastDrawnTicket;
+		if (lastDrawnTicketIndex > -1)
+		{
+			return new IndexedTicket(lastDrawnTicketIndex, tickets.get(lastDrawnTicketIndex));
+		}
+		return null;
 	}
 
 	public List<Ticket> getTickets()
@@ -210,6 +340,37 @@ public class Session extends AbstractEntity<Session>
 	public void setTickets(List<Ticket> tickets)
 	{
 		this.tickets = tickets;
+	}
+	
+	public List<IndexedTicket> getIndexedTickets()
+	{
+		return indexedTickets(t -> true, 0, tickets.size());
+	}
+	
+	/**
+	 * A wrapper for {@link Ticket} which exposes its index
+	 * in the {@link Session#getTickets()} list.
+	 * 
+	 * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+	 */
+	public static class IndexedTicket
+	{
+		private final int index;
+		private final Ticket ticket;
+		public IndexedTicket(int index, Ticket ticket)
+		{
+			super();
+			this.index = index;
+			this.ticket = ticket;
+		}
+		public int getIndex()
+		{
+			return index;
+		}
+		public Ticket getTicket()
+		{
+			return ticket;
+		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ public class Ticket extends AbstractEntity<Ticket>
 	
 	@NotNull
 	@ManyToOne (optional = false)
-	private User user;
+	private User owner;
 	
 	@ManyToOne
 	private ServiceReception assignedReception;
@@ -54,7 +55,7 @@ public class Ticket extends AbstractEntity<Ticket>
 	@Override
 	public String toString()
 	{
-		return "Ticket [number=" + number + ", user=" + user + "]";
+		return "Ticket [number=" + number + ", owner=" + owner + "]";
 	}
 
 	public Session getSession()
@@ -84,13 +85,29 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.assignedReception = assignedReception;
 	}
 
-	public User getUser()
+	/**
+	 * The owner of the ticket, i.e. the user who withdrew the ticket:
+	 * a ticket must have an owner, and can have only an owner at a time.  
+	 * 
+	 * @return
+	 */
+	public User getOwner()
 	{
-		return user;
+		return owner;
 	}
-	public void setUser(User user)
+	public void setOwner(User owner)
 	{
-		this.user = user;
+		this.owner = owner;
+	}
+	/**
+	 * @param user
+	 * 
+	 * @return <code>true</code> if the user is the actual owner, of if
+	 * both are <code>null</code>.
+	 */
+	public boolean isOwner(User user)
+	{
+		return Objects.equals(user, getOwner());
 	}
 
 	public LocalDateTime getWithdrawTime()
@@ -110,6 +127,10 @@ public class Ticket extends AbstractEntity<Ticket>
 	{
 		this.drawTime = drawTime;
 	}
+	public boolean isDrawn()
+	{
+		return getDrawTime() != null;
+	}
 	
 	public LocalDateTime getCancellationTime()
 	{
@@ -123,6 +144,17 @@ public class Ticket extends AbstractEntity<Ticket>
 	{
 		return getCancellationTime() != null;
 	}
+	
+	/**
+	 * A ticket is waiting if it has not been cancelled
+	 * and it has not been drawn yet.
+	 * 
+	 * @return
+	 */
+	public boolean isWaiting()
+	{
+		return !isCancelled() && !isDrawn();
+	}
 
 	public ServiceReception getServiceReception()
 	{
@@ -131,11 +163,6 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setServiceReception(ServiceReception serviceReception)
 	{
 		this.serviceReception = serviceReception;
-	}
-
-	public boolean isDrawnable()
-	{
-		return ! isCancelled(); // TODO Any other rules?
 	}
 
 }
