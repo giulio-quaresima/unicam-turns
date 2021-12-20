@@ -13,12 +13,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Location;
 import eu.giulioquaresima.unicam.turns.domain.entities.Service;
+import eu.giulioquaresima.unicam.turns.domain.entities.ServiceReception;
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.SessionConfiguration;
 import eu.giulioquaresima.unicam.turns.domain.entities.Tenant;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketSourceConfiguration;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.repository.LocationRepository;
+import eu.giulioquaresima.unicam.turns.repository.ServiceReceptionRepository;
 import eu.giulioquaresima.unicam.turns.repository.ServiceRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionConfigurationRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
@@ -37,6 +39,8 @@ public class AbstractTest
 	protected LocationRepository locationRepository;
 	@Autowired
 	protected ServiceRepository serviceRepository;
+	@Autowired
+	protected ServiceReceptionRepository serviceReceptionRepository;
 	@Autowired
 	protected SessionRepository sessionRepository;
 	@Autowired
@@ -77,6 +81,14 @@ public class AbstractTest
 		service.setName("Accettazione");
 		service.setLocation(createLocation());
 		return serviceRepository.save(service);
+	}
+	
+	protected ServiceReception createServiceReception(Service service, String label)
+	{
+		ServiceReception serviceReception = new ServiceReception();
+		serviceReception.setService(service);
+		serviceReception.setLabel(label);
+		return serviceReceptionRepository.save(serviceReception);
 	}
 	
 	protected User createUser(String givenName, String familyName)

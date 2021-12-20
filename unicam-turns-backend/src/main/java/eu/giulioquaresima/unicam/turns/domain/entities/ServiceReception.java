@@ -16,4 +16,24 @@ public class ServiceReception extends AbstractEntity<ServiceReception>
 	
 	@SuppressWarnings("unused")
 	private String label;
+
+	public Service getService()
+	{
+		return service;
+	}
+
+	public void setService(Service service)
+	{
+		this.service = service;
+	}
+
+	public String getLabel()
+	{
+		return label;
+	}
+
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
 }

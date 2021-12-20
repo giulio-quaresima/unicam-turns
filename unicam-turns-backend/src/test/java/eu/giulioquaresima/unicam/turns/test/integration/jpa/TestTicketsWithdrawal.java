@@ -11,19 +11,21 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.JpaSort;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
+import eu.giulioquaresima.unicam.turns.domain.entities.Session.PositionedTicket;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket_;
+import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.utils.BijectiveBaseKNumeration;
 
 @DataJpaTest
-public class TestTickets extends AbstractTest
+public class TestTicketsWithdrawal extends AbstractTest
 {
 	@Test
 	public void testTicketWithdrawSequentialDecimal()
 	{
 		Session session = createSequentialDecimalSession();
-		session.withraw(createUser("Giulio", "Quaresima"));
-		session.withraw(createUser("Daneel", "Olivaw"));		
+		session.withraw(createUser("Giulio", "Quaresima"), true);
+		session.withraw(createUser("Daneel", "Olivaw"), true);		
 		List<Ticket> tickets = ticketRepository.findAll(JpaSort.of(Ticket_.id));
 		assertThat(tickets).size().isEqualTo(2);
 		assertThat(tickets.get(0).getOwner().getFamilyName()).isEqualTo("Quaresima");
@@ -42,7 +44,7 @@ public class TestTickets extends AbstractTest
 		int size = 1024;
 		for (int count = 0; count < size; count++)
 		{
-			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)));
+			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)), true);
 		}
 		
 		List<Ticket> tickets = ticketRepository.findAll(JpaSort.of(Ticket_.id));
@@ -70,7 +72,7 @@ public class TestTickets extends AbstractTest
 		long size = (endRange - startRange) + 1;
 		for (long count = 0; count < size; count++)
 		{
-			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)));
+			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)), true);
 		}
 		
 		Set<String> expectedNumbers = new HashSet<>();
@@ -85,4 +87,38 @@ public class TestTickets extends AbstractTest
 		}
 		assertThat(expectedNumbers).isEmpty();
 	}
+	
+	@Test
+	public void testWithrawTwiceNotAllowed()
+	{
+		for (Session session : List.of(createSequentialDecimalSession(), createSequentialBijectiveSession(), createSrambledSession()))
+		{
+			User alice = createUser("Alice", null);
+			User bob = createUser("Bob", null);
+			User carol = createUser("Carol", null);
+			
+			PositionedTicket aliceTicket = session.withraw(alice, false);
+			PositionedTicket bobTicket = session.withraw(bob, false);
+			PositionedTicket carolTicket = session.withraw(carol, false);
+			
+			assertThat(aliceTicket).isEqualTo(aliceTicket);
+			
+			assertThat(aliceTicket).isNotEqualTo(bobTicket);
+			assertThat(aliceTicket).isNotEqualTo(carolTicket);
+			assertThat(bobTicket).isNotEqualTo(carolTicket);
+		
+			PositionedTicket newAliceTicket = session.withraw(alice, false);
+			assertThat(aliceTicket).isEqualTo(newAliceTicket); // The second withraw returns the same ticket...
+			session.cancel(alice);
+			newAliceTicket = session.withraw(alice, false);
+			assertThat(aliceTicket).isNotEqualTo(newAliceTicket); // ... unless you cancel the previous one
+			
+			// Or, with only one call
+			aliceTicket = newAliceTicket;
+			newAliceTicket = null;
+			newAliceTicket = session.withraw(alice, true); // Notice the boolean argument
+			assertThat(aliceTicket).isNotEqualTo(newAliceTicket);
+		}
+	}
+	
 }

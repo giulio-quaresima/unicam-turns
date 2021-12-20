@@ -56,7 +56,7 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn
 	private List<String> ticketNumbers = new ArrayList<>();
 	
-	private int lastDrawnTicketIndex = -1;
+	private int lastDrawnTicketPosition = -1;
 	
 	private Duration estimatedAverageWaitingDuration;
 	
@@ -65,102 +65,65 @@ public class Session extends AbstractEntity<Session>
 	private List<Ticket> tickets = new ArrayList<>();
 	
 	/**
-	 * Get the set of indexed tickets which pass the {@code filter} test
+	 * Get the set of positioned tickets which pass the {@code filter} test
 	 * and fall inside the [from,to) interval.
 	 * 
 	 * @param filter The filter or criterion.
 	 * 
-	 * @param from The start index (inclusive).
+	 * @param from The start position (inclusive).
 	 * 
-	 * @param to The end index (exclusive).
+	 * @param to The end position (exclusive).
 	 * 
 	 * @return Never <code>null</code>.
 	 */
-	public List<IndexedTicket> indexedTickets(Predicate<Ticket> filter, int from, int to)
+	public List<PositionedTicket> positionedTickets(Predicate<Ticket> filter, int from, int to)
 	{
-		List<IndexedTicket> indexedTickets = new ArrayList<>();
+		List<PositionedTicket> positionedTickets = new ArrayList<>();
 		from = Math.max(from, 0);
 		to = Math.min(to, tickets.size());
-		for (int index = from; index < to; index++)
+		for (int position = from; position < to; position++)
 		{
-			Ticket ticket = tickets.get(index);
+			Ticket ticket = tickets.get(position);
 			if (filter.test(ticket))
 			{
-				indexedTickets.add(new IndexedTicket(index, ticket));
+				positionedTickets.add(new PositionedTicket(position, ticket));
 			}
 		}
-		return indexedTickets;
+		return positionedTickets;
 	}
 	
-	/**
-	 * Get the set of indices of the tickets which are owned
-	 * by the passed user.
-	 * 
-	 * @param user The sought owner.
-	 * 
-	 * @return The indices of the owned tickets, empty if no ticket
-	 * is owned.
-	 * 
-	 * @see Ticket#isOwner(User)
-	 */
-	public List<IndexedTicket> ownedTickets(User user)
-	{
-		if (user != null)
-		{
-			return indexedTickets(ticket -> ticket.isOwner(user), 0, tickets.size());
-		}
-		return Collections.emptyList();
-	}
-	
-	/**
-	 * Get the set of indices of the tickets which are owned
-	 * by the passed user AND are waiting.
-	 * 
-	 * @param user The sought owner.
-	 * 
-	 * @return The only possible waiting ticket owned by {@code user}.
-	 * 
-	 * @see Ticket#isWaiting()
-	 */
-	public IndexedTicket waitingTicket(User user)
-	{
-		if (user != null)
-		{
-			Predicate<Ticket> filter = ticket -> ticket.isOwner(user);
-			filter = filter.and(ticket -> ticket.isWaiting());
-			List<IndexedTicket> indexedTickets = indexedTickets(
-					filter, 
-					lastDrawnTicketIndex + 1, // The drawn tickets are not alive 
-					tickets.size());
-			Assert.state(indexedTickets.size() < 2, "At most one ticket per user can be in the \"waiting\" state: there must be an error in state management of tickets");
-			if (!indexedTickets.isEmpty())
-			{
-				return indexedTickets.get(0);
-			}
-		}
-		return null;		
-	}
-
 	/**
 	 * Withdraw a ticket (the same act
 	 * as pulling the ticket from a dispenser).
 	 * 
 	 * @param user The user who withdrew the ticket.
 	 * 
-	 * @return The new ticket which has {@code user} set
-	 * has the owner, a number, a withdraw time, and so is
-	 * in its "waiting" state.
+	 * @param cancelPrevious If <code>true</code>, the previous
+	 * waiting ticket, if any, will be cancelled.
+	 * 
+	 * @return The new ticket which has {@code user} 
+	 * as owner, a number, a withdraw time, and so is
+	 * in its "waiting" state: if the user already owns a waiting
+	 * ticket, if {@code cancelPrevious} the previous ticket is cancelled,
+	 * otherwise that previous ticket is returned.
 	 */
-	public IndexedTicket withraw(User user)
+	public PositionedTicket withraw(User user, boolean cancelPrevious)
 	{
-		IndexedTicket indexedTicket = waitingTicket(user);
-		if (indexedTicket != null)
+		PositionedTicket positionedTicket = waitingTicket(user);
+		if (positionedTicket != null)
 		{
-			if (LOGGER.isDebugEnabled())
+			if (cancelPrevious)
 			{
-				LOGGER.debug("The user {} is triying to withraw a ticket while is already waiting for with another ticket: I return the currently waiting ticket.");
+				positionedTicket.getTicket().cancel();
 			}
-			return indexedTicket;
+			else
+			{
+				if (LOGGER.isDebugEnabled())
+				{
+					LOGGER.debug("The user {} is triying to withraw a ticket while already owns a waiting ticket: I return the currently waiting ticket.");
+				}
+				return positionedTicket;
+			}
 		}
 		
 		Ticket ticket = new Ticket();
@@ -170,11 +133,11 @@ public class Session extends AbstractEntity<Session>
 		ticket.setWithdrawTime(LocalDateTime.now());		
 		ticket.setNumber(pollNewNumber());
 		
-		indexedTicket = new IndexedTicket(tickets.size(), ticket);
+		positionedTicket = new PositionedTicket(tickets.size(), ticket);
 		
 		tickets.add(ticket);
 		
-		return indexedTicket;
+		return positionedTicket;
 	}
 	
 	/**
@@ -184,17 +147,17 @@ public class Session extends AbstractEntity<Session>
 	 * @param serviceReception The service reception to assign
 	 * the ticket to.
 	 * 
-	 * @return A no longer waiting ticket with a service reception
-	 * and a draw
+	 * @return A no longer waiting ticket targeted to a service reception,
+	 * or <code>null</code> if there are no longer waiting tickets.
 	 */
-	public IndexedTicket draw(ServiceReception serviceReception)
+	public PositionedTicket draw(ServiceReception serviceReception)
 	{
-		for (int position = (lastDrawnTicketIndex + 1); position < tickets.size(); position++)
+		for (int position = (lastDrawnTicketPosition + 1); position < tickets.size(); position++)
 		{
 			Ticket ticket = tickets.get(position);
 			if (ticket.isWaiting())
 			{
-				lastDrawnTicketIndex = position;
+				lastDrawnTicketPosition = position;
 				ticket.setServiceReception(serviceReception);
 				ticket.setDrawTime(LocalDateTime.now());
 				
@@ -206,16 +169,138 @@ public class Session extends AbstractEntity<Session>
 				else
 				{
 					estimatedAverageWaitingDuration = duration
-							.plus(estimatedAverageWaitingDuration.multipliedBy(lastDrawnTicketIndex-1))
-							.dividedBy(lastDrawnTicketIndex);
+							.plus(estimatedAverageWaitingDuration.multipliedBy(lastDrawnTicketPosition-1))
+							.dividedBy(lastDrawnTicketPosition);
 				}
 				
-				return new IndexedTicket(lastDrawnTicketIndex, ticket);
+				return new PositionedTicket(lastDrawnTicketPosition, ticket);
 			}
 		}
+		
 		return null;
 	}
 
+	/**
+	 * Get the set of indices of the tickets which are owned
+	 * by the passed user.
+	 * 
+	 * @param user The sought owner.
+	 * 
+	 * @return The owned tickets, empty if no ticket is owned.
+	 * 
+	 * @see Ticket#isOwner(User)
+	 */
+	public List<PositionedTicket> ownedTickets(User user)
+	{
+		if (user != null)
+		{
+			return positionedTickets(ticket -> ticket.isOwner(user), 0, tickets.size());
+		}
+		return Collections.emptyList();
+	}
+	
+	/**
+	 * Get if exists the the ticket which is owned by the passed user 
+	 * AND is waiting.
+	 * 
+	 * @param user The sought owner.
+	 * 
+	 * @return The only possible waiting ticket owned by {@code user}.
+	 * 
+	 * @see Ticket#isWaiting()
+	 */
+	public PositionedTicket waitingTicket(User user)
+	{
+		if (user != null)
+		{
+			Predicate<Ticket> filter = ticket -> ticket.isOwner(user);
+			filter = filter.and(ticket -> ticket.isWaiting());
+			List<PositionedTicket> positionedTickets = positionedTickets(
+					filter, 
+					lastDrawnTicketPosition + 1, // The drawn tickets are not alive 
+					tickets.size());
+			Assert.state(positionedTickets.size() < 2, "At most one ticket per user can be in the \"waiting\" state: there must be an error in state management of tickets");
+			if (!positionedTickets.isEmpty())
+			{
+				return positionedTickets.get(0);
+			}
+		}
+		return null;		
+	}
+
+	/**
+	 * Cancel the owned waiting ticket if any.
+	 * 
+	 * @param user
+	 * 
+	 * @return The cancelled ticket, or <code>null</code> if
+	 * the user owns no waiting ticket.
+	 */
+	public PositionedTicket cancel(User user)
+	{
+		PositionedTicket positionedTicket = waitingTicket(user);
+		if (positionedTicket != null)
+		{
+			positionedTicket.getTicket().cancel();
+		}
+		return positionedTicket;
+	}
+	
+	/**
+	 * Postpone the waiting ticket of the user (if any) of
+	 * at most {@code slots} slots.
+	 * 
+	 * @param user
+	 * 
+	 * @param slots
+	 * 
+	 * @return The ticket with the new position.
+	 */
+	public PositionedTicket postpone(User user, int slots)
+	{
+		if (slots < 0)
+		{
+			throw new IllegalArgumentException("Cannot skip the queue!!!");
+		}
+		
+		PositionedTicket positionedTicket = waitingTicket(user);
+		
+		if (positionedTicket != null)
+		{
+			if (!sessionConfiguration.getTicketSourceConfiguration().isPostponeEnabled())
+			{
+				throw new UnsupportedOperationException("This function is not enabled for this session");
+			}
+			
+			int actualPosition = positionedTicket.getPosition();
+			int newPosition = Math.min(actualPosition + slots, (tickets.size() - 1));
+			if (newPosition > actualPosition)
+			{
+				tickets.add(newPosition, tickets.remove(actualPosition));
+				positionedTicket = new PositionedTicket(newPosition, tickets.get(newPosition));
+			}
+		}
+		
+		return positionedTicket;
+	}
+	
+	public PositionedTicket postpone(User user, Duration duration)
+	{
+		long slots;
+		
+		if (estimatedAverageWaitingDuration.isZero())
+		{
+			slots = 0;
+		}
+		else
+		{
+			slots = duration.dividedBy(estimatedAverageWaitingDuration);
+		}
+		slots = Math.min(slots, Integer.MAX_VALUE);
+		
+		return postpone(user, (int) slots);
+	}
+	
 	protected String pollNewNumber()
 	{
 		String number = null;
@@ -316,19 +401,19 @@ public class Session extends AbstractEntity<Session>
 		this.ticketNumbers = ticketNumbers;
 	}
 
-	public Integer getLastDrawnTicketIndex()
+	public Integer getLastDrawnTicketPosition()
 	{
-		return lastDrawnTicketIndex;
+		return lastDrawnTicketPosition;
 	}
-	public void setLastDrawnTicketIndex(Integer lastDrawnTicketIndex)
+	public void setLastDrawnTicketPosition(Integer lastDrawnTicketPosition)
 	{
-		this.lastDrawnTicketIndex = lastDrawnTicketIndex;
+		this.lastDrawnTicketPosition = lastDrawnTicketPosition;
 	}
-	public IndexedTicket getLastDrawnTicket()
+	public PositionedTicket getLastDrawnTicket()
 	{
-		if (lastDrawnTicketIndex > -1)
+		if (lastDrawnTicketPosition > -1)
 		{
-			return new IndexedTicket(lastDrawnTicketIndex, tickets.get(lastDrawnTicketIndex));
+			return new PositionedTicket(lastDrawnTicketPosition, tickets.get(lastDrawnTicketPosition));
 		}
 		return null;
 	}
@@ -342,34 +427,51 @@ public class Session extends AbstractEntity<Session>
 		this.tickets = tickets;
 	}
 	
-	public List<IndexedTicket> getIndexedTickets()
+	public List<PositionedTicket> getPositionedTickets()
 	{
-		return indexedTickets(t -> true, 0, tickets.size());
+		return positionedTickets(t -> true, 0, tickets.size());
 	}
 	
 	/**
-	 * A wrapper for {@link Ticket} which exposes its index
+	 * A wrapper for {@link Ticket} which exposes its position
 	 * in the {@link Session#getTickets()} list.
 	 * 
 	 * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
 	 */
-	public static class IndexedTicket
+	public static class PositionedTicket
 	{
-		private final int index;
+		private final int position;
 		private final Ticket ticket;
-		public IndexedTicket(int index, Ticket ticket)
+		public PositionedTicket(int position, Ticket ticket)
 		{
 			super();
-			this.index = index;
+			this.position = position;
 			this.ticket = ticket;
 		}
-		public int getIndex()
+		public int getPosition()
 		{
-			return index;
+			return position;
 		}
 		public Ticket getTicket()
 		{
 			return ticket;
+		}
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(position, ticket);
+		}
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PositionedTicket other = (PositionedTicket) obj;
+			return position == other.position && Objects.equals(ticket, other.ticket);
 		}
 	}
 

@@ -144,6 +144,10 @@ public class Ticket extends AbstractEntity<Ticket>
 	{
 		return getCancellationTime() != null;
 	}
+	public void cancel()
+	{
+		setCancellationTime(LocalDateTime.now());
+	}
 	
 	/**
 	 * A ticket is waiting if it has not been cancelled
