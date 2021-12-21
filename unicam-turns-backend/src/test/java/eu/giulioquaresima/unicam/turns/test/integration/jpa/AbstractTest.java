@@ -6,7 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -32,7 +37,6 @@ public class AbstractTest
 {
 	@Autowired
 	protected TestEntityManager entityManager;
-	
 	@Autowired
 	protected TenantRepository tenantRepository;
 	@Autowired
@@ -50,9 +54,13 @@ public class AbstractTest
 	@Autowired
 	protected UserRepository userRepository;
 	
+	protected RandomGenerator randomGenerator = null;
+	
 	@BeforeEach
-	public void commodityData()
+	public void beforeEach()
 	{
+		randomGenerator = new Random(System.currentTimeMillis());
+		
 		Service service = createService();
 		assertThat(service).isNotNull().matches(s -> "Accettazione".equals(s.getName()));
 		assertThat(service.getLocation()).isNotNull();
@@ -95,6 +103,16 @@ public class AbstractTest
 	{
 		User user = new User(givenName, familyName);
 		return userRepository.save(user);
+	}
+	
+	protected User createRandomUser()
+	{
+		return createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8));
+	}
+	
+	protected List<User> createRandomUsers(int amount)
+	{
+		return IntStream.range(0, amount).mapToObj(i -> createRandomUser()).sorted().collect(Collectors.toList());
 	}
 	
 	protected Service findTestService()

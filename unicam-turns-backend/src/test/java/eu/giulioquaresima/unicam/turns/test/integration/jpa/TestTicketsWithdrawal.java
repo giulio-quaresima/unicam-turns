@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.assertj.core.api.Condition;
+import org.assertj.core.condition.Not;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.domain.JpaSort;
@@ -44,7 +45,7 @@ public class TestTicketsWithdrawal extends AbstractTest
 		int size = 1024;
 		for (int count = 0; count < size; count++)
 		{
-			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)), true);
+			session.withraw(createRandomUser(), true);
 		}
 		
 		List<Ticket> tickets = ticketRepository.findAll(JpaSort.of(Ticket_.id));
@@ -72,7 +73,7 @@ public class TestTicketsWithdrawal extends AbstractTest
 		long size = (endRange - startRange) + 1;
 		for (long count = 0; count < size; count++)
 		{
-			session.withraw(createUser(RandomStringUtils.randomAlphabetic(6), RandomStringUtils.randomAlphabetic(8)), true);
+			session.withraw(createRandomUser(), true);
 		}
 		
 		Set<String> expectedNumbers = new HashSet<>();
@@ -118,6 +119,18 @@ public class TestTicketsWithdrawal extends AbstractTest
 			newAliceTicket = null;
 			newAliceTicket = session.withraw(alice, true); // Notice the boolean argument
 			assertThat(aliceTicket).isNotEqualTo(newAliceTicket);
+			
+			Condition<PositionedTicket> isWaiting = new Condition<PositionedTicket>(t -> t.getTicket().isWaiting(), "isWaiting");
+			assertThat(session.ownedTickets(alice))
+				.areExactly(2, Not.not(isWaiting))
+				.areExactly(1, isWaiting)
+				.size().isEqualTo(3);
+			assertThat(session.ownedTickets(bob))
+				.areExactly(1, isWaiting)
+				.size().isEqualTo(1);
+			assertThat(session.ownedTickets(carol))
+				.areExactly(1, isWaiting)
+				.size().isEqualTo(1);
 		}
 	}
 	
