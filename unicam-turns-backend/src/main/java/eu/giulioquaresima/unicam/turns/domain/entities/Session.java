@@ -179,6 +179,29 @@ public class Session extends AbstractEntity<Session>
 		
 		return null;
 	}
+	
+	/**
+	 * Retrieve the next waiting tickets, at most <em>n</em>.
+	 * 
+	 * @param n The maximum amount of tickets to return.
+	 * 
+	 * @return A not <code>null</code>, possibly empty list.
+	 */
+	public List<PositionedTicket> nextTickets(int n)
+	{
+		List<PositionedTicket> nextTickets = new ArrayList<>();
+		
+		for (int position = (lastDrawnTicketPosition + 1); n-- > 0 && position < tickets.size(); position++)
+		{
+			Ticket ticket = tickets.get(position);
+			if (ticket.isWaiting())
+			{
+				nextTickets.add(new PositionedTicket(lastDrawnTicketPosition, ticket));
+			}
+		}
+		
+		return nextTickets;
+	}
 
 	/**
 	 * Get the set of indices of the tickets which are owned

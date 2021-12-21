@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.ServiceReception;
@@ -25,49 +27,70 @@ public class TestTicketsDraw extends AbstractTest
 	}
 	
 	@Test
+	@Timeout (value = 60, unit = TimeUnit.SECONDS)
 	public void testDrawInvariants()
 	{
 		RandomUtils randomUtils = RandomUtils.with(randomGenerator);
+		
 		int withrawalsCount = 0;
 		int drawCount = 0;
 		int cancellationsCount = 0;
 		int successfulWithrawalsCount = 0;
 		int successfulDrawCount = 0;
 		int successfulCancellationsCount = 0;
+		
 		for (Session session : List.of(createSequentialDecimalSession(), createSequentialBijectiveSession(), createSrambledSession()))
 		{
 			ServiceReception serviceReception = createServiceReception(session.getService(), "Sportello 01");
 			
 			// Create some random users
-			List<User> users = createRandomUsers(1024);
+			List<User> users = createRandomUsers(1024 * 16);
 			
-			while (!users.isEmpty())
+			while (!users.isEmpty() || successfulWithrawalsCount > (successfulDrawCount + successfulCancellationsCount))
 			{
+				assertThat(withrawalsCount)
+					.isGreaterThanOrEqualTo(successfulWithrawalsCount);
+				assertThat(drawCount)
+					.isGreaterThanOrEqualTo(successfulDrawCount);
+				assertThat(cancellationsCount)
+					.isGreaterThanOrEqualTo(successfulCancellationsCount);
+				
+				/*
+				 * The likelihoods 0.6 and 0.3 emulate a situation where the frequency
+				 * of the users arrival is twice the frequency of the service, plus
+				 * a 10% (0.1) of users' cancellations.
+				 */
 				switch (randomUtils.randomElement(Action.values(), 0.6, 0.3, 0.1))
 				{
 				case WITHRAW:
 				{
 					withrawalsCount++;
 					User user = users.get(randomGenerator.nextInt(users.size()));
-					boolean cancel = randomGenerator.nextBoolean() && randomGenerator.nextBoolean();
-					PositionedTicket waitingTicket = session.waitingTicket(user);
-					PositionedTicket positionedTicket = session.withraw(user, cancel);
-					if (cancel)
+					if (user != null)
 					{
-						if (waitingTicket != null)
+						boolean cancel = randomGenerator.nextBoolean() && randomGenerator.nextBoolean();
+						PositionedTicket waitingTicket = session.waitingTicket(user);
+						PositionedTicket positionedTicket = session.withraw(user, cancel);
+						if (cancel)
 						{
-							assertThat(positionedTicket).isNotEqualTo(waitingTicket);
-						}
-					}
-					else
-					{
-						if (waitingTicket != null)
-						{
-							assertThat(positionedTicket).isEqualTo(waitingTicket);
+							cancellationsCount++;
+							successfulWithrawalsCount++;
+							if (waitingTicket != null)
+							{
+								successfulCancellationsCount++;
+								assertThat(positionedTicket).isNotNull().isNotEqualTo(waitingTicket);
+							}
 						}
 						else
 						{
-							successfulWithrawalsCount++;
+							if (waitingTicket != null)
+							{
+								assertThat(positionedTicket).isEqualTo(waitingTicket);
+							}
+							else
+							{
+								successfulWithrawalsCount++;
+							}
 						}
 					}
 				}
@@ -101,16 +124,10 @@ public class TestTicketsDraw extends AbstractTest
 					}
 				}
 					break;
-				default:
-					throw new IllegalArgumentException("Unexpected value: " + randomUtils.randomElement(Action.values(), 0.6, 0.3, 0.1));
 				}
-			}
+			}		
 			
-			assertThat(withrawalsCount)
-				.isGreaterThanOrEqualTo(successfulWithrawalsCount)
-				.isGreaterThanOrEqualTo(drawCount)
-				.isGreaterThanOrEqualTo(cancellationsCount);
-			// TODO
+			assertThat(successfulWithrawalsCount).isEqualTo(successfulDrawCount + successfulCancellationsCount);
 		}
 		
 	}
