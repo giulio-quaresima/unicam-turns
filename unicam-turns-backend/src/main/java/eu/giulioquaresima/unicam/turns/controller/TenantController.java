@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.rest;
+package eu.giulioquaresima.unicam.turns.controller;
 
 import java.util.Collection;
 

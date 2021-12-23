@@ -43,7 +43,7 @@ public class TestTicketsDraw extends AbstractTest
 		{
 			ServiceReception serviceReception = createServiceReception(session.getService(), "Sportello 01");
 			
-			// Create some random users
+			// Create many random users
 			List<User> users = createRandomUsers(1024 * 16);
 			
 			while (!users.isEmpty() || successfulWithrawalsCount > (successfulDrawCount + successfulCancellationsCount))
