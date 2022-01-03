@@ -2,11 +2,15 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.NaturalId;
 
 /**
  * The double-linked-list of tickets of a {@link Session}.
@@ -23,6 +27,10 @@ public class Ticket extends AbstractEntity<Ticket>
 	@NotNull
 	@Column (length = 8, nullable = false)
 	private String number;
+	
+	@NotNull
+	@NaturalId
+	private EmbeddableUUID uuid;
 	
 	@NotNull
 	@ManyToOne (optional = false)
@@ -74,6 +82,38 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setNumber(String number)
 	{
 		this.number = number;
+	}
+	
+	/**
+	 * An UUID field which represents an unique, unpredictable (random generated) value
+	 * assigned to each ticket in addition to its number, so as to provide an anonymous 
+	 * authentication mechanism (i.e without the necessity to sign up and login) 
+	 * for each user who owns a ticket because only the user who withdrew the ticket 
+	 * may knows its UUID.
+	 * 
+	 * The UUID is internally mapped as an {@link Embeddable} type because it apperas
+	 * that Hibernate by default maps the java native UUID as a binary column in the DB.
+	 * 
+	 * @return
+	 */
+	public UUID getUuid()
+	{
+		if (uuid != null)
+		{
+			return uuid.toUUID();
+		}
+		return null;
+	}
+	public void setUuid(UUID uuid)
+	{
+		if (uuid != null)
+		{
+			this.uuid = new EmbeddableUUID(uuid);
+		}
+		else
+		{
+			this.uuid = null;
+		}
 	}
 
 	public ServiceReception getAssignedReception()

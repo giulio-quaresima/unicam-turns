@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -132,6 +133,7 @@ public class Session extends AbstractEntity<Session>
 		ticket.setOwner(user);
 		ticket.setWithdrawTime(LocalDateTime.now());		
 		ticket.setNumber(pollNewNumber());
+		ticket.setUuid(UUID.randomUUID());
 		
 		positionedTicket = new PositionedTicket(tickets.size(), ticket);
 		
