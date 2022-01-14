@@ -1,0 +1,19 @@
+spring:
+
+  jpa:
+    show_sql: false
+    properties:
+      hibernate:
+        show_sql: false
+
+  liquibase:
+    change-log: classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml
+    contexts: development
+    drop-first: true
+    
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/auth/realms/baeldung
+          jwk-set-uri: http://localhost:8080/auth/realms/baeldung/protocol/openid-connect/certs
