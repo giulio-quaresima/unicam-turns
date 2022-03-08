@@ -30,34 +30,27 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 		this.id = id;
 	}
 
-	public boolean entityEquals(@Nullable E entity)
+	@Override
+	public boolean equals(@Nullable Object obj)
 	{
-		if (this == entity)
+		if (this == obj)
 		{
 			return true;
 		}
 		
-		if (entity != null)
+		E otherEntity = castOrNull(obj);
+		if (otherEntity != null)
 		{
-			return id != null && id.equals(entity.getId());
+			if (id != null)
+			{
+				return id.equals(otherEntity.getId());
+			}
 		}
 		
 		return false;
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(@Nullable Object obj)
-	{
-		try
-		{
-			return entityEquals((E) obj);
-		}
-		catch (ClassCastException e)
-		{
-			return super.equals(obj);
-		}
-	}
+	
+	protected abstract E castOrNull(@Nullable Object obj);
 
 	@Override
 	public int hashCode()
@@ -85,7 +78,7 @@ public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Com
 	@Override
 	public final int compareTo(@Nullable E otherEntity)
 	{
-		if (entityEquals(otherEntity))
+		if (equals(otherEntity))
 		{
 			return 0;
 		}
