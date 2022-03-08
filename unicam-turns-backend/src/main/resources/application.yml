@@ -5,6 +5,7 @@ spring:
     properties:
       hibernate:
         show_sql: false
+        format_sql: false
 
   liquibase:
     change-log: classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml

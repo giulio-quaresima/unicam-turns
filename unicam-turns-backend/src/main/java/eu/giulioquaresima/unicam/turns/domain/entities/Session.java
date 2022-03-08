@@ -3,6 +3,7 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -34,7 +35,7 @@ public class Session extends AbstractEntity<Session>
 	private List<Ticket> tickets = new ArrayList<>();
 	
 	@Column
-	private int currentTicket = -1;
+	private int currentTicketIndex = -1;
 	
 	public Ticket withraw(LocalDateTime withrawTime)
 	{
@@ -49,9 +50,8 @@ public class Session extends AbstractEntity<Session>
 		
 		Ticket ticket = new Ticket();
 		ticket.setUniqueIdentifier(UUID.randomUUID());
-		ticket.setWithrawTime(withrawTime);
+		ticket.setWithrawTime(Objects.requireNonNull(withrawTime));
 		tickets.add(ticket);
-		currentTicket++;
 		
 		return ticket;
 	}
@@ -94,13 +94,13 @@ public class Session extends AbstractEntity<Session>
 		this.tickets = tickets;
 	}
 
-	public int getCurrentTicket()
+	public int getCurrentTicketIndex()
 	{
-		return currentTicket;
+		return currentTicketIndex;
 	}
-	public void setCurrentTicket(int currentTicket)
+	public void setCurrentTicketIndex(int currentTicketIndex)
 	{
-		this.currentTicket = currentTicket;
+		this.currentTicketIndex = currentTicketIndex;
 	}
 
 	@Override
