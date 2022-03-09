@@ -1,9 +1,10 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -18,11 +19,15 @@ import io.github.resilience4j.core.lang.Nullable;
 @Entity
 public class Session extends AbstractEntity<Session>
 {
+	public static final Comparator<Session> START_END_TIME_COMPARATOR =
+			Comparator.nullsLast(Comparator.comparing(Session::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())))
+			.thenComparing(Comparator.nullsLast(Comparator.comparing(Session::getEndTime, Comparator.nullsLast(Comparator.naturalOrder()))));
+	
 	@NotNull
 	@ManyToOne (optional = false)
 	private TicketDispenser ticketDispenser;
 	
-	@NotNull
+	@Nullable
 	@Column
 	private LocalDateTime startTime;
 	
@@ -34,28 +39,109 @@ public class Session extends AbstractEntity<Session>
 	@OrderColumn
 	private List<Ticket> tickets = new ArrayList<>();
 	
-	@Column
+	@Column (nullable = false)
 	private int currentTicketIndex = -1;
 	
-	public Ticket withraw(LocalDateTime withrawTime)
+	@Column (name = "maximum_number", nullable = false)
+	private int limit = Integer.MAX_VALUE;
+		
+	public boolean isOpen(LocalDateTime givenTime)
 	{
-		if (startTime == null)
+		return 
+				startTime != null
+				&&
+				!givenTime.isBefore(startTime) // Start inclusive
+				&&
+				(endTime == null || endTime.isAfter(givenTime)) // End exclusive
+				&&
+				tickets.size() < limit
+				;
+	}
+	public boolean isOpenNow(Clock clock)
+	{
+		return isOpen(now(clock));
+	}
+	
+	public void start(LocalDateTime givenTime)
+	{
+		setStartTime(givenTime);
+	}
+	public void startNow(Clock clock)
+	{
+		start(now(clock));
+	}
+	
+	public void end(LocalDateTime givenTime)
+	{
+		setEndTime(givenTime);
+	}
+	public void endNow(Clock clock)
+	{
+		end(now(clock));
+	}
+	
+	/**
+	 * Withdraw a ticket now.
+	 * 
+	 * @param clock The clock which returns the current time.
+	 * 
+	 * @return A valid ticket if the session {@link #isOpenNow(Clock)},
+	 * otherwise <code>null</code>. 
+	 */
+	public Ticket withraw(Clock clock)
+	{
+		LocalDateTime now = now(clock);
+		
+		if (isOpen(now))
 		{
-			throw new IllegalStateException("The session has not been started");
-		}
-		if (endTime != null && withrawTime.isAfter(endTime))
-		{
-			throw new IllegalStateException("The session has been closed");
+			Ticket ticket = new Ticket(tickets.size(), UUID.randomUUID(), now);
+			tickets.add(ticket);
+			return ticket;
 		}
 		
-		Ticket ticket = new Ticket();
-		ticket.setUniqueIdentifier(UUID.randomUUID());
-		ticket.setWithrawTime(Objects.requireNonNull(withrawTime));
-		tickets.add(ticket);
+		return null;
+	}
+	
+	/**
+	 * Draw the next ticket, if any not yet drawn ticket is present.
+	 * 
+	 * @param clock The clock which returns the current time.
+	 * 
+	 * @return The next ticket or <code>null</code> if tickets are finished or
+	 * the session is closed.
+	 */
+	public Ticket draw(Clock clock)
+	{
+		LocalDateTime now = now(clock);
 		
-		return ticket;
+		if (isOpen(now))
+		{
+			int nextIndex = currentTicketIndex + 1;
+			if (nextIndex < tickets.size())
+			{
+				return tickets.get(currentTicketIndex = nextIndex);
+			}
+		}
+		
+		return null;
+	}
+	
+	protected LocalDateTime now(Clock clock)
+	{
+		return LocalDateTime.now(clock);
 	}
 
+	@Override
+	protected int compareNotEqual(Session otherEntity)
+	{
+		int compare = START_END_TIME_COMPARATOR.compare(this, otherEntity);
+		if (compare == 0)
+		{
+			compare = super.compareNotEqual(otherEntity);
+		}
+		return compare;
+	}
+	
 	@NotNull
 	public TicketDispenser getTicketDispenser()
 	{
@@ -66,7 +152,6 @@ public class Session extends AbstractEntity<Session>
 		this.ticketDispenser = ticketDispenser;
 	}
 
-	@NotNull
 	public LocalDateTime getStartTime()
 	{
 		return startTime;
@@ -101,6 +186,15 @@ public class Session extends AbstractEntity<Session>
 	public void setCurrentTicketIndex(int currentTicketIndex)
 	{
 		this.currentTicketIndex = currentTicketIndex;
+	}
+
+	public int getLimit()
+	{
+		return limit;
+	}
+	public void setLimit(int limit)
+	{
+		this.limit = limit;
 	}
 
 	@Override

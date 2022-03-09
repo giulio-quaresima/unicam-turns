@@ -13,6 +13,10 @@ public class Ticket
 {
 	@NotNull
 	@Column (nullable = false)
+	private int number;
+	
+	@NotNull
+	@Column (nullable = false, unique = true)
 	private UUID uniqueIdentifier;
 	
 	@NotNull
@@ -23,10 +27,30 @@ public class Ticket
 	{
 		super();
 	}
-	public Ticket(@NotNull UUID uniqueIdentifier)
+	public Ticket(@NotNull int number, @NotNull UUID uniqueIdentifier, @NotNull LocalDateTime withrawTime)
 	{
-		this();
+		super();
+		this.number = number;
 		this.uniqueIdentifier = uniqueIdentifier;
+		this.withrawTime = withrawTime;
+	}
+
+	public int getNumber()
+	{
+		return number;
+	}
+	public void setNumber(int number)
+	{
+		this.number = number;
+	}
+	/**
+	 * Tickets generally starts from 1.
+	 * 
+	 * @return
+	 */
+	public long getHumanFriendlyNumber()
+	{
+		return ((long) getNumber()) + 1L;
 	}
 	
 	public UUID getUniqueIdentifier()
