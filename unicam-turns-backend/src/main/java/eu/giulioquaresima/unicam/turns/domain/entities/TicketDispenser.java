@@ -1,6 +1,11 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,13 +32,26 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	
 	@OneToMany (mappedBy = "ticketDispenser")
 	@SortNatural
-	private SortedSet<Session> sessions;
+	private SortedSet<Session> sessions = new TreeSet<>();
 
 	public Session createSession()
 	{
 		Session session = new Session();
 		session.setTicketDispenser(this);
 		return session;
+	}
+	
+	public Optional<Session> findFirstMatchingSession(Predicate<Session> predicate)
+	{
+		return sessions.stream().sorted().filter(predicate).findFirst();
+	}
+	public Session getCurrentSession(LocalDateTime localDateTime)
+	{
+		return findFirstMatchingSession(s -> s.isOpen(localDateTime)).orElse(null);
+	}
+	public Session getCurrentSession(Clock clock)
+	{
+		return findFirstMatchingSession(s -> s.isOpenNow(clock)).orElse(null);
 	}
 	
 	public TicketDispenser()

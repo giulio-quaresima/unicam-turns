@@ -18,4 +18,14 @@
     	<sqlFile path="0.0.1-001-ddl-postgresql.sql" relativeToChangelogFile="true"/>
     </changeSet>
     
+    <changeSet id="0.0.1-002-test-data" author="giulio-quaresima">
+    	<insert tableName="owner">
+    		<column name="name">Farmacia Comunale AFAS n. 1</column>
+    	</insert>
+    	<insert tableName="ticket_dispenser">
+    		<column name="owner_id" valueComputed="IDENTITY()"></column>
+    		<column name="label">Farmacia Comunale AFAS n. 1</column>
+    	</insert>
+    </changeSet>
+    
 </databaseChangeLog>
