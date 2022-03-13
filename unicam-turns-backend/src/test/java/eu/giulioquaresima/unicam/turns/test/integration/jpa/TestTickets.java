@@ -15,6 +15,7 @@ import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import eu.giulioquaresima.unicam.turns.domain.entities.Owner;
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
@@ -28,8 +29,10 @@ public class TestTickets extends AbstractTest
 	@Test
 	public void testSimpleTicketWithrawal()
 	{
-		TicketDispenser ticketDispenser = new TicketDispenser("Farmacia Comunale AFAS n. 1");
-		ticketDispenser = ticketDispenserRepository.save(ticketDispenser);
+		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
+				new TicketDispenser(
+						"Farmacia Comunale AFAS n. 1",
+						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		assertThat(ticketDispenser).isNotNull();
 		assertThat(ticketDispenser.getId()).isNotNull();
 		
@@ -81,8 +84,10 @@ public class TestTickets extends AbstractTest
 	@Test
 	public void testUuidPersistenceConsistency()
 	{
-		TicketDispenser ticketDispenser = new TicketDispenser("Farmacia Comunale AFAS n. 1");
-		ticketDispenser = ticketDispenserRepository.save(ticketDispenser);
+		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
+				new TicketDispenser(
+						"Farmacia Comunale AFAS n. 1",
+						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		
 		Clock clock = Clock.systemUTC();
 		
@@ -108,8 +113,10 @@ public class TestTickets extends AbstractTest
 	@Test
 	public void testTicketDrawConsistency()
 	{
-		TicketDispenser ticketDispenser = new TicketDispenser("Farmacia Comunale AFAS n. 1");
-		ticketDispenser = ticketDispenserRepository.save(ticketDispenser);
+		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
+				new TicketDispenser(
+						"Farmacia Comunale AFAS n. 1",
+						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		
 		Clock clock = Clock.systemUTC();
 		RandomGenerator randomGenerator = new Random(-1873867143071539904L); // Same seed, repeatable test

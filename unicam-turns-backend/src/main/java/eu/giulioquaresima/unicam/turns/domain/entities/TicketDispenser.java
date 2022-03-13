@@ -4,7 +4,9 @@ import java.util.SortedSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.SortNatural;
 
@@ -16,8 +18,12 @@ import org.hibernate.annotations.SortNatural;
 @Entity
 public class TicketDispenser extends AbstractEntity<TicketDispenser>
 {
+	@NotNull
 	@Column (nullable = false)
 	private String label;
+	
+	@ManyToOne (optional = false)
+	private Owner owner;
 	
 	@OneToMany (mappedBy = "ticketDispenser")
 	@SortNatural
@@ -34,10 +40,11 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	{
 		super();
 	}
-	public TicketDispenser(String label)
+	public TicketDispenser(String label, Owner owner)
 	{
 		this();
 		this.label = label;
+		this.owner = owner;
 	}
 	
 	public String getLabel()

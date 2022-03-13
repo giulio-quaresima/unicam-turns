@@ -103,7 +103,7 @@ public class Session extends AbstractEntity<Session>
 	}
 	
 	/**
-	 * Draw the next ticket, if any not yet drawn ticket is present.
+	 * Draw the next ticket, if there are still any not drawn.
 	 * 
 	 * @param clock The clock which returns the current time.
 	 * 
