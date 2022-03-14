@@ -1,0 +1,7 @@
+{
+  "name": "unicam-turns-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
