@@ -1,3 +1,8 @@
 export const environment = {
-  production: true
+  production: true,
+  apiInfo: {
+    protocol: "http",
+    host: "localhost",
+    port: 8080
+  }
 };
