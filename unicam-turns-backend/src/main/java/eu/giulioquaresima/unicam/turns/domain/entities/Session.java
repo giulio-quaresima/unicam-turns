@@ -10,13 +10,16 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import io.github.resilience4j.core.lang.Nullable;
 
 @Entity
+@Table (schema = AbstractEntity.SCHEMA_NAME)
 public class Session extends AbstractEntity<Session>
 {
 	public static final Comparator<Session> START_END_TIME_COMPARATOR =
@@ -36,6 +39,7 @@ public class Session extends AbstractEntity<Session>
 	private LocalDateTime endTime;
 	
 	@ElementCollection
+	@JoinTable (schema = AbstractEntity.SCHEMA_NAME)
 	@OrderColumn
 	private List<Ticket> tickets = new ArrayList<>();
 	

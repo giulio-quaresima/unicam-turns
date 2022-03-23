@@ -13,6 +13,8 @@ import org.springframework.lang.Nullable;
 @MappedSuperclass
 public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Comparable<E>
 {	
+	public static final String SCHEMA_NAME = "turns";
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

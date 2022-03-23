@@ -19,10 +19,10 @@
     </changeSet>
     
     <changeSet id="0.0.1-002-test-data" author="giulio-quaresima">
-    	<insert tableName="owner">
+    	<insert tableName="owner" schemaName="turns">
     		<column name="name">Farmacia Comunale AFAS n. 1</column>
     	</insert>
-    	<insert tableName="ticket_dispenser">
+    	<insert tableName="ticket_dispenser" schemaName="turns">
     		<column name="owner_id" valueComputed="IDENTITY()"></column>
     		<column name="label">Farmacia Comunale AFAS n. 1</column>
     	</insert>
