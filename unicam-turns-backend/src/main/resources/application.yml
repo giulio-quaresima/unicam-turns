@@ -6,10 +6,12 @@ spring:
       hibernate:
         show_sql: false
         format_sql: false
+#        default_schema: turns
 
   liquibase:
     change-log: classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml
     contexts: development
+#    default-schema: turns
     drop-first: true
     
   security:

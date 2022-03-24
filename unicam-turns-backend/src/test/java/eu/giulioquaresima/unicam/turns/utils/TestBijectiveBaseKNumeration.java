@@ -1,12 +1,12 @@
 package eu.giulioquaresima.unicam.turns.utils;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.LongStream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.bouncycastle.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

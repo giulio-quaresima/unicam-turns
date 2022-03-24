@@ -15,7 +15,6 @@ import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.service.ClockService;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
-import eu.giulioquaresima.unicam.turns.repository.TicketDispenserRepository;
 
 @RestController
 @RequestMapping ("/owner/dispenser/{ticketDispenser:\\d+}")
@@ -28,9 +27,6 @@ public class OwnerController
 	
 	@Autowired
 	private SessionRepository sessionRepository;
-	
-	@Autowired
-	private TicketDispenserRepository ticketDispenserRepository;
 	
 	@PostMapping ("/sessions/start")
 	public ResponseEntity<Session> startSession(@PathVariable TicketDispenser ticketDispenser)

@@ -21,8 +21,6 @@ import org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import eu.giulioquaresima.unicam.turns.domain.entities.AbstractEntity;
-
 public class DDL
 {
 	public static void ddl(Class<? extends Dialect> dialect) throws ClassNotFoundException
@@ -64,8 +62,6 @@ public class DDL
 		System.out.println("----------------------------------------------------------------");
 		System.out.println();
 		
-		System.out.printf("create schema if not exists %s;\n\n", AbstractEntity.SCHEMA_NAME);
-
 		schemaExport.createOnly(EnumSet.of(TargetType.STDOUT), metadata);
 	}
 
