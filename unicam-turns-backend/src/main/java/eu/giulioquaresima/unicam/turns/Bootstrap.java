@@ -4,7 +4,10 @@ import java.util.Scanner;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import eu.giulioquaresima.unicam.turns.controller.LogRequestDeletemeFilter;
 
 /**
  * Application's bootstrap, which can be terminated gracefully pressing ENTER, 
@@ -15,6 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @SpringBootApplication (scanBasePackageClasses = Bootstrap.class)
+@ServletComponentScan (basePackageClasses = LogRequestDeletemeFilter.class)
 public class Bootstrap
 {
 	public static void main(String[] args)
