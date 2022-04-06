@@ -13,10 +13,25 @@ spring:
     contexts: development
 #    default-schema: turns
     drop-first: true
-    
+# https://docs.spring.io/spring-security/site/docs/5.2.12.RELEASE/reference/html/oauth2.html#oauth2login-boot-property-mappings   
   security:
     oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/auth/realms/baeldung
-          jwk-set-uri: http://localhost:8080/auth/realms/baeldung/protocol/openid-connect/certs
+      client:
+        registration:
+          client-dev:
+            client-id: "unicam-turns-backend"
+            client-secret: "mimportassaitantosonosolounambientedisviluppo"
+            client-name: "Ambiente di sviluppo"
+            provider: "oauth-provider-dev"
+            scope: "openid"
+            redirect-uri: "https://my-redirect-uri.com"
+            client-authentication-method: "basic"
+            authorization-grant-type: "authorization-code"
+        provider:
+          oauth-provider-dev:
+            authorization-uri: "http://localhost:9000/oauth2/authorize"
+            token-uri: "http://localhost:9000/oauth2/token"
+            user-info-uri: "http://localhost:9000/userinfo"
+            user-info-authentication-method: "header"
+            jwk-set-uri: "http://localhost:9000/token_keys"
+            user-name-attribute: "name"

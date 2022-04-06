@@ -11,4 +11,3 @@ Per testare il funzionamento:
 7. Response mode: post form
 8. cliccare su [SEND REQUEST]
 9. autenticarsi
-10. 

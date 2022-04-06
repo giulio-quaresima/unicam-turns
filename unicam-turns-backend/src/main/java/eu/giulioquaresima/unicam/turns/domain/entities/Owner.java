@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.SortNatural;
 
 /**
- * The virtual owner of one ore more ticket dispensers: more real people can act impersonating
- * the owner; the owner can control the whole lifecycle of the ticket dispensers he owns, starting and
+ * The virtual owner of one ore more ticket dispensers: one or more real people can act impersonating
+ * the same owner; the owner can control the whole lifecycle of the ticket dispensers he owns, starting and
  * stopping {@link Session}s and drawing tickets.
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
@@ -41,17 +41,6 @@ public class Owner extends AbstractEntity<Owner>
 	{
 		this();
 		this.name = name;
-	}
-
-	@Override
-	protected int compareNotEqual(Owner otherEntity)
-	{
-		int compare = NAME_COMPARATOR.compare(this, otherEntity);
-		if (compare == 0)
-		{
-			compare = super.compareNotEqual(otherEntity);
-		}
-		return compare;
 	}
 
 	public String getName()
@@ -82,6 +71,17 @@ public class Owner extends AbstractEntity<Owner>
 			return (Owner) obj;
 		}
 		return null;
+	}
+
+	@Override
+	protected int compareNotEqual(Owner otherEntity)
+	{
+		int compare = NAME_COMPARATOR.compare(this, otherEntity);
+		if (compare == 0)
+		{
+			compare = super.compareNotEqual(otherEntity);
+		}
+		return compare;
 	}
 
 }

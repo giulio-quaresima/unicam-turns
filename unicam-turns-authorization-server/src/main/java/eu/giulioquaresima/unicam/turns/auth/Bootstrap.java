@@ -21,29 +21,32 @@ public class Bootstrap
 	{
 		ConfigurableApplicationContext app = SpringApplication.run(Bootstrap.class, args);
 		
-		System.out.println("\n\n\n"
-				+ "*********************************************\n"
-				+ "* Please press ENTER to shutdown gracefully *\n"
-				+ "*********************************************");
-		try (Scanner scanner = new Scanner(System.in))
+		if (Boolean.parseBoolean(System.getProperty("exitOnEnter", "false")))
 		{
-			if (scanner.hasNextLine())
+			System.out.println("\n\n\n"
+					+ "*********************************************\n"
+					+ "* Please press ENTER to shutdown gracefully *\n"
+					+ "*********************************************");
+			try (Scanner scanner = new Scanner(System.in))
 			{
-				scanner.nextLine();
+				if (scanner.hasNextLine())
+				{
+					scanner.nextLine();
+				}
 			}
-		}
-		
-		int exitCode = SpringApplication.exit(app);
-		// int exitCode = SpringApplication.exit(app, () -> Integer.MAX_VALUE); // To test the error message.
-		if (exitCode == 0)
-		{
-			System.out.println("\nThank you for letting me shutdown gracefully. Bye!");
-		}
-		else
-		{
-			System.out.println("\nThank you for letting me shutdown gracefully.");
-			System.out.printf("Anyway, something went wrong, exit code: %d.\n", exitCode);
-			System.out.println("Bye!");
+			
+			int exitCode = SpringApplication.exit(app);
+			// int exitCode = SpringApplication.exit(app, () -> Integer.MAX_VALUE); // To test the error message.
+			if (exitCode == 0)
+			{
+				System.out.println("\nThank you for letting me shutdown gracefully. Bye!");
+			}
+			else
+			{
+				System.out.println("\nThank you for letting me shutdown gracefully.");
+				System.out.printf("Anyway, something went wrong, exit code: %d.\n", exitCode);
+				System.out.println("Bye!");
+			}
 		}
 	}
 }

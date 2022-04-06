@@ -47,9 +47,10 @@ public class AuthorizationServerConfig
     @Bean
     public RegisteredClientRepository registeredClientRepository() 
     {
+    	// https://docs.spring.io/spring-security/site/docs/5.2.12.RELEASE/reference/html/oauth2.html#oauth2login-boot-property-mappings
     	RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
     		.clientId("unicam-turns-backend")
-    		.clientSecret("{noop}secret")
+    		.clientSecret("{noop}mimportassaitantosonosolounambientedisviluppo")
     		.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
     		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
