@@ -1,5 +1,6 @@
 package eu.giulioquaresima.unicam.turns.auth.config;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -51,7 +54,7 @@ public class AuthorizationServerConfig
     	RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
     		.clientId("unicam-turns-backend")
     		.clientSecret("{noop}mimportassaitantosonosolounambientedisviluppo")
-    		.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+    		.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
     		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
     		.redirectUri("https://oidcdebugger.com/debug")
@@ -92,6 +95,7 @@ public class AuthorizationServerConfig
     @Bean
     public UserDetailsService userDetailsService()
     {
+    	/*
     	InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
     	userDetailsManager.createUser(User
     			.withUsername("giulio")
@@ -99,6 +103,8 @@ public class AuthorizationServerConfig
     			.roles("ADMIN")
     			.build());
     	return userDetailsManager;
+    	*/
+    	return new RidiculousUserDetailsService();
     }
     
     @Bean
@@ -115,6 +121,20 @@ public class AuthorizationServerConfig
           .privateKey(certificatesLocator.getJwtSigningKey())
           .keyID(certificatesLocator.getKeyAlias())
           .build();
+    }
+    
+    /**
+     * I'm authenticating everybody!
+     * 
+     * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+     */
+    public static class RidiculousUserDetailsService implements UserDetailsService
+    {
+		@Override
+		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+		{
+			return new User(username, "{noop}" + username, Collections.emptySet());
+		}
     }
 
 }
