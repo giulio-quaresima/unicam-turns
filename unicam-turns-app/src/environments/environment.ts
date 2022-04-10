@@ -8,6 +8,9 @@ export const environment = {
     protocol: "http",
     host: "localhost",
     port: 8080
+  },
+  oauthConfig: {
+    issuer: "http://localhost:9000"
   }
 };
 

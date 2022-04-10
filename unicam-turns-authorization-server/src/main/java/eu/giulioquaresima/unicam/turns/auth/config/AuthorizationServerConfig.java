@@ -52,7 +52,7 @@ public class AuthorizationServerConfig
     {
     	// https://docs.spring.io/spring-security/site/docs/5.2.12.RELEASE/reference/html/oauth2.html#oauth2login-boot-property-mappings
     	RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-    		.clientId("unicam-turns-backend")
+    		.clientId("unicam-turns-app")
     		.clientSecret("{noop}mimportassaitantosonosolounambientedisviluppo")
     		.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
