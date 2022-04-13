@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.core.userdetails.User;
@@ -41,7 +42,27 @@ public class AuthorizationServerConfig
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception 
     {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http.cors().and());
+    	OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+		return http.formLogin(Customizer.withDefaults()).build();
+    }
+    
+    /**
+     * @param http
+     * @return
+     * @throws Exception
+     * 
+     * @see https://huongdanjava.com/implement-oauth-authorization-server-using-spring-authorization-server.html
+     */
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception 
+    {
+        http
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests.anyRequest().authenticated()
+            )
+            .formLogin(Customizer.withDefaults())
+            ;
+ 
         return http.build();
     }
     
@@ -57,6 +78,7 @@ public class AuthorizationServerConfig
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
     		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
     		.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+    		//.clientSettings(ClientSettings.builder().requireProofKey(false))
     		.redirectUri("https://oidcdebugger.com/debug")
 //          .redirectUri("http://127.0.0.1:8080/login/oauth2/code/articles-client-oidc")
 //          .redirectUri("http://127.0.0.1:8080/authorized")
@@ -67,26 +89,6 @@ public class AuthorizationServerConfig
     		.build();
     	return new InMemoryRegisteredClientRepository(registeredClient);
     }
-    
-    /**
-     * @param http
-     * @return
-     * @throws Exception
-     * 
-     * @see https://huongdanjava.com/implement-oauth-authorization-server-using-spring-authorization-server.html
-     */
-//    @Bean
-//    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception 
-//    {
-//        http
-//            .authorizeRequests(authorizeRequests ->
-//                authorizeRequests.anyRequest().authenticated()
-//            )
-//            .formLogin(Customizer.withDefaults())
-//            ;
-// 
-//        return http.build();
-//    }
     
     @Bean
     public ProviderSettings providerSettings() {
