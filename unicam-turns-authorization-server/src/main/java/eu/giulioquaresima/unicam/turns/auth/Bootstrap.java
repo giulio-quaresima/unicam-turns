@@ -15,6 +15,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @SpringBootApplication (scanBasePackageClasses = Bootstrap.class)
+//@ServletComponentScan (basePackageClasses = FuckFilter.class)
 public class Bootstrap
 {
 	public static void main(String[] args)

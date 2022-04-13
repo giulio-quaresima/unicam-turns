@@ -1,10 +1,2 @@
 server:
   port: 9000
-
-spring:
-
-  jpa:
-    show_sql: false
-    properties:
-      hibernate:
-        show_sql: false
