@@ -11,14 +11,14 @@ import { authConfig } from './auth.config';
 export class AppComponent {
 
   constructor(private oauthService: OAuthService) {
-    this.configureImplicitFlow();
+    this.configureOAuth();
   }
 
-  private configureImplicitFlow() {
+  private configureOAuth() {
     this.oauthService.configure(authConfig);
     // this.oauthService.tokenValidationHandler = new JwksValidationHandler();
 
-    this.oauthService.loadDiscoveryDocumentAndTryLogin().then((_) => {
+    this.oauthService.loadDiscoveryDocumentAndLogin().then((_) => {
       // if (useHash) {
       //   this.router.navigate(['/']);
       // }
