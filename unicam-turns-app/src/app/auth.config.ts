@@ -4,7 +4,8 @@ import { AuthConfig } from 'angular-oauth2-oidc';
 
 export const authConfig: AuthConfig = {
   // Url of the Identity Provider
-  issuer: 'http://localhost:9000',
+  issuer: 'http://unicam-turns-authorization-server:9000',
+  // issuer: 'https://demo.c2id.com',
 
   requireHttps: false,
 
@@ -14,14 +15,15 @@ export const authConfig: AuthConfig = {
   //     ? '/#/index.html'
   //     : '/index.html'),
 
-  redirectUri: window.location.origin + '/index.html',
+  redirectUri: window.location.origin,
 
   // URL of the SPA to redirect the user after silent refresh
 //   silentRefreshRedirectUri: window.location.origin + '/silent-refresh.html',
-  silentRefreshRedirectUri: window.location.origin + '/index.html',
+  silentRefreshRedirectUri: window.location.origin,
   // silentRefreshRedirectUri: 'http://127.0.0.1:8100/index.html',
   // The SPA's id. The SPA is registerd with this id at the auth-server
   clientId: 'unicam-turns-app',
+  // clientId: '000123',
 
   responseType: 'code',
 

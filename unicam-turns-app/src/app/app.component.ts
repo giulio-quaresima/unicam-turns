@@ -18,7 +18,11 @@ export class AppComponent {
     this.oauthService.configure(authConfig);
     // this.oauthService.tokenValidationHandler = new JwksValidationHandler();
 
-    this.oauthService.loadDiscoveryDocumentAndLogin().then((_) => {
+    this.oauthService.loadDiscoveryDocumentAndLogin(
+      {
+        customHashFragment: window.location.search // https://github.com/manfredsteyer/angular-oauth2-oidc/issues/1023#issuecomment-780063508
+      }
+    ).then((_) => {
       // if (useHash) {
       //   this.router.navigate(['/']);
       // }

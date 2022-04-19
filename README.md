@@ -7,16 +7,32 @@ Prerequisiti: Java 17, Maven, Ionic CLI
 
 ### Development mode
 
-Per lanciare la app:
+A causa di alcune limitazioni all'uso di localhost con `spring-authorization-server`
+è necessario evitare l'utilizzo di `localhost` come hostname per il client
+e l'authorization server. Per questo, ho aggiunto la seguente configurazione
+nel file `/etc/hosts`
 
 ```
-cd unicam-turns-backend
+127.0.0.1	unicam-turns-app
+127.0.0.1	unicam-turns-authorization-server
+127.0.0.1	unicam-turns-backend
+```
+
+(questo funziona in Linux, non ho idea se e come fare in altri OS)
+
+Per lanciare quindi il tutto:
+
+```
+cd unicam-turns-authorization-server
+mvn spring-boot:run &
+cd ../unicam-turns-backend
 mvn spring-boot:run &
 cd ../unicam-turns-app
-ionic serve
+ionic serve --host=unicam-turns-app
 ```
 
-Per stopparla, dopo aver premuto CTRL+C per stoppare il server ionic, non dimenticare il backend che era stato lasciato in background (vedi la `&`), quindi ad esempio:
+Per stopparla, dopo aver premuto CTRL+C per stoppare il server ionic, non dimenticare i backend 
+che erano stati lasciati in background (vedi la `&`), quindi ad esempio:
 
 ```
 $ jobs

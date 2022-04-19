@@ -62,12 +62,13 @@ public class AuthorizationServerConfig
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
     		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
     		.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+    		.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
     		//.clientSettings(ClientSettings.builder().requireProofKey(false))
 //    		.redirectUri("https://oidcdebugger.com/debug")
-    		.redirectUri("http://127.0.0.1:8100/index.html")
+    		.redirectUri("http://unicam-turns-app:8100")
     		.scope(OidcScopes.OPENID)
-//    		.scope(OidcScopes.PROFILE)
-//    		.scope(OidcScopes.EMAIL)
+    		.scope(OidcScopes.PROFILE)
+    		.scope(OidcScopes.EMAIL)
 //          .scope("articles.read")
     		.build();
     	return new InMemoryRegisteredClientRepository(registeredClient);
@@ -76,7 +77,7 @@ public class AuthorizationServerConfig
     @Bean
     public ProviderSettings providerSettings() {
         return ProviderSettings.builder()
-          .issuer("http://localhost:9000")
+          .issuer("http://unicam-turns-authorization-server:9000")
           .build();
     }
     
