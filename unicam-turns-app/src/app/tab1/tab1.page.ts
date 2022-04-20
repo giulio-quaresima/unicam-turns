@@ -14,7 +14,8 @@ export class Tab1Page {
   constructor(public api : Api) {}
 
   public withraw() : void {
-    this.api.withraw(1).then(t => this.ticket = t); // FIXME id hard-coded
+    this.api.whoami();
+    // this.api.withraw(1).then(t => this.ticket = t); // FIXME id hard-coded
   }
 
 }

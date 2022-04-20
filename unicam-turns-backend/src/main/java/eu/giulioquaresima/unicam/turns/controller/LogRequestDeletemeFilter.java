@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
-@WebFilter
+//@WebFilter
 @Deprecated
 public class LogRequestDeletemeFilter implements Filter
 {

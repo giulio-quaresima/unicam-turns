@@ -6,6 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +22,7 @@ import eu.giulioquaresima.unicam.turns.domain.service.ClockService;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 
 @RestController
-@RequestMapping ("/user/dispenser/{ticketDispenser:\\d+}")
+@RequestMapping ("/user")
 public class UserController
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -29,9 +33,22 @@ public class UserController
 	@Autowired
 	private ClockService clockService;
 	
-	@GetMapping ("/withraw")
+	@GetMapping
+	public ResponseEntity<String> whoami()
+	{
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return ResponseEntity.ok("Hey, " + authentication.getName());
+	}
+	
+	@GetMapping ("/withraw/dispenser/{ticketDispenser:\\d+}")
 	public ResponseEntity<Ticket> withraw(@PathVariable TicketDispenser ticketDispenser)
 	{
+//		System.out.println(userDetails);
+//		if (userDetails != null)
+//		{
+//			System.out.println(userDetails.getUsername());
+//			System.out.println(userDetails.getPassword());
+//		}
 		Optional<Ticket> optionalTicket = Optional.empty();
 		if (ticketDispenser != null)
 		{

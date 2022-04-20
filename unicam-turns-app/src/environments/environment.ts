@@ -6,11 +6,12 @@ export const environment = {
   production: false,
   apiInfo: {
     protocol: "http",
-    host: "localhost",
-    port: 8080
+    host: "unicam-turns-backend",
+    port: 8080,
+    url: "http://unicam-turns-backend:8080"
   },
   oauthConfig: {
-    issuer: "http://localhost:9000"
+    issuer: "http://unicam-turns-authorization-server:9000"
   }
 };
 

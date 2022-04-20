@@ -18,5 +18,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9000
-          jwk-set-uri: http://localhost:9000/oauth2/jwks # Probabilmente non necessario in quanto dovrebbe autoconfigurarsi tramite issuer-uri
+          issuer-uri: http://unicam-turns-authorization-server:9000
+#          jwk-set-uri: http://localhost:9000/oauth2/jwks # Probabilmente non necessario in quanto dovrebbe autoconfigurarsi tramite issuer-uri
+
+server:
+  port: 8080
+  
+#logging:
+#  level:
+#    root: DEBUG
