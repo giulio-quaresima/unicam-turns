@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.NaturalId;
@@ -20,6 +22,10 @@ public class User extends AbstractEntity<User>
 	
 	@ManyToMany
 	private Set<Owner> owners = new HashSet<>();
+	
+	@OneToMany (mappedBy = "owner")
+	@OrderBy ("id")
+	private Set<Ticket> tickets;
 	
 	public String getUsername()
 	{

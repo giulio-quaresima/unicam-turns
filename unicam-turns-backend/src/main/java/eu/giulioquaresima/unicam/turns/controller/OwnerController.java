@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
-import eu.giulioquaresima.unicam.turns.domain.service.ClockService;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
+import eu.giulioquaresima.unicam.turns.service.infrastructure.TimeServices;
 
 @RestController
 @RequestMapping ("/owner/dispenser/{ticketDispenser:\\d+}")
@@ -23,7 +23,7 @@ public class OwnerController
 	private static final Logger LOGGER = LoggerFactory.getLogger(OwnerController.class);
 	
 	@Autowired
-	private ClockService clockService;
+	private TimeServices timeServices;
 	
 	@Autowired
 	private SessionRepository sessionRepository;
@@ -34,11 +34,11 @@ public class OwnerController
 		Optional<Session> optionalSession = Optional.empty();
 		if (ticketDispenser != null)
 		{
-			Session session = ticketDispenser.getCurrentSession(clockService.getClock());
+			Session session = ticketDispenser.getCurrentSession(timeServices.getSystemClock());
 			if (session == null)
 			{
 				session = ticketDispenser.createSession();
-				session.startNow(clockService.getClock());
+				session.startNow(timeServices.getSystemClock());
 				optionalSession = Optional.of(sessionRepository.save(session));
 			}
 		}
