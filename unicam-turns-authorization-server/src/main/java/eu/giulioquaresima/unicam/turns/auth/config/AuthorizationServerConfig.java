@@ -1,5 +1,6 @@
 package eu.giulioquaresima.unicam.turns.auth.config;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.server.authorization.config.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -56,20 +58,30 @@ public class AuthorizationServerConfig
     	// https://docs.spring.io/spring-security/site/docs/5.2.12.RELEASE/reference/html/oauth2.html#oauth2login-boot-property-mappings
     	RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
     		.clientId("unicam-turns-app")
-//    		.clientSecret("{noop}mimportassaitantosonosolounambientedisviluppo")
-//    		.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
     		.clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE, no client authentication
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
     		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-    		.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-    		.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+//    		.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+//    		.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
     		//.clientSettings(ClientSettings.builder().requireProofKey(false))
 //    		.redirectUri("https://oidcdebugger.com/debug")
     		.redirectUri("http://unicam-turns-app:8100")
     		.scope(OidcScopes.OPENID)
     		.scope(OidcScopes.PROFILE)
     		.scope(OidcScopes.EMAIL)
-//          .scope("articles.read")
+    		.tokenSettings(TokenSettings
+    				.builder()
+    				/*
+    				 * FIXME
+    				 * Due gh-297 to https://github.com/spring-projects/spring-authorization-server/issues/297
+    				 * there is no longer support for refresh_token with public clients, 
+    				 * as a workaround I set a ridiculously log lifetime span to the access_token (one year!)
+    				 */
+    				.accessTokenTimeToLive(Duration.ofDays(365)) // <-- ridiculously log lifetime span
+//    				.reuseRefreshTokens(false)
+//    				.refreshTokenTimeToLive(Duration.ofMinutes(5))
+    				.build()
+    				)
     		.build();
     	return new InMemoryRegisteredClientRepository(registeredClient);
     }

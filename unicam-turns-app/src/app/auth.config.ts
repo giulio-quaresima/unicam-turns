@@ -29,8 +29,14 @@ export const authConfig: AuthConfig = {
 
   // set the scope for the permissions the client should request
   // The first three are defined by OIDC. The 4th is a usecase-specific one
-  // scope: 'openid profile email',
-  scope: 'openid',
+  scope: 'openid profile email',
+  
+  /*
+  Per attivare il refresh token (probabilmente inutile)
+  Please also note, that you have to request the offline_access scope to get a refresh token.
+  https://manfredsteyer.github.io/angular-oauth2-oidc/docs/additional-documentation/refreshing-a-token.html
+  */
+  // scope: 'openid profile email offline_access', 
 
   // silentRefreshShowIFrame: true,
 
