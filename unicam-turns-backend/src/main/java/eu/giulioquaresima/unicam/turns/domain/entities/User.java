@@ -8,10 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.NaturalId;
 
+/**
+ * 
+ * 
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+ */
 @Entity
 public class User extends AbstractEntity<User>
 {
@@ -26,6 +32,22 @@ public class User extends AbstractEntity<User>
 	@OneToMany (mappedBy = "owner")
 	@OrderBy ("id")
 	private Set<Ticket> tickets;
+	
+	@Transient
+	public boolean owns(TicketDispenser ticketDispenser)
+	{
+		for (Owner owner : owners)
+		{
+			for (TicketDispenser ownTicketDispenser : owner.getTicketDispensers())
+			{
+				if (ownTicketDispenser.equals(ticketDispenser))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 	public String getUsername()
 	{

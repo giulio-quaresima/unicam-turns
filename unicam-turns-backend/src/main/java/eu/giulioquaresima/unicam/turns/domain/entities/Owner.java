@@ -1,11 +1,14 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
@@ -27,6 +30,9 @@ public class Owner extends AbstractEntity<Owner>
 	@NotNull
 	@Column (nullable = false)
 	private String name;
+	
+	@ManyToMany (mappedBy = "owners")
+	private Set<User> ownersUsers = new HashSet<>();
 	
 	@SortNatural
 	@OneToMany (mappedBy = "owner")
@@ -51,6 +57,16 @@ public class Owner extends AbstractEntity<Owner>
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	public Set<User> getOwnersUsers()
+	{
+		return ownersUsers;
+	}
+
+	public void setOwnersUsers(Set<User> ownersUsers)
+	{
+		this.ownersUsers = ownersUsers;
 	}
 
 	public SortedSet<TicketDispenser> getTicketDispensers()

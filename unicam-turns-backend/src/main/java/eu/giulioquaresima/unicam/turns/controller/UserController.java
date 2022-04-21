@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
-import eu.giulioquaresima.unicam.turns.service.application.TicketServices;
+import eu.giulioquaresima.unicam.turns.domain.service.TicketServices;
 
+/**
+ * 
+ * 
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+ */
 @RestController
 @RequestMapping ("/user")
 public class UserController

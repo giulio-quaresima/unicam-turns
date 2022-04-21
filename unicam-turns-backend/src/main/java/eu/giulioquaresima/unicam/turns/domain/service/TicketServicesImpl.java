@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.service.application;
+package eu.giulioquaresima.unicam.turns.domain.service;
 
 import java.time.Clock;
 
@@ -14,6 +14,11 @@ import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.service.infrastructure.TimeServices;
 
+/**
+ * 
+ * 
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+ */
 @Service
 public class TicketServicesImpl implements TicketServices
 {

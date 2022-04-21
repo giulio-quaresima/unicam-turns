@@ -1,4 +1,4 @@
-package eu.giulioquaresima.unicam.turns.service.application;
+package eu.giulioquaresima.unicam.turns.domain.service;
 
 import java.util.Optional;
 
@@ -12,6 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
+/**
+ * 
+ * 
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+ */
 @Service
 public class UserServicesImpl implements UserServices
 {

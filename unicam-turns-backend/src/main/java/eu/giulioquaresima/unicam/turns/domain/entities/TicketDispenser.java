@@ -2,6 +2,7 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -41,6 +42,17 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 		return session;
 	}
 	
+	public TicketDispenser()
+	{
+		super();
+	}
+	public TicketDispenser(String label, Owner owner)
+	{
+		this();
+		this.label = label;
+		this.owner = owner;
+	}
+	
 	public Optional<Session> findFirstMatchingSession(Predicate<Session> predicate)
 	{
 		return sessions.stream().sorted().filter(predicate).findFirst();
@@ -54,17 +66,6 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 		return findFirstMatchingSession(s -> s.isOpenNow(clock)).orElse(null);
 	}
 	
-	public TicketDispenser()
-	{
-		super();
-	}
-	public TicketDispenser(String label, Owner owner)
-	{
-		this();
-		this.label = label;
-		this.owner = owner;
-	}
-	
 	public String getLabel()
 	{
 		return label;
@@ -72,6 +73,15 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	public void setLabel(String label)
 	{
 		this.label = label;
+	}
+
+	public Owner getOwner()
+	{
+		return owner;
+	}
+	public void setOwner(Owner owner)
+	{
+		this.owner = owner;
 	}
 
 	@Override
@@ -82,6 +92,22 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 			return (TicketDispenser) obj;
 		}
 		return null;
+	}
+	
+	protected static final Comparator<TicketDispenser> LABEL_COMPARATOR = Comparator.nullsLast(
+			Comparator.comparing(TicketDispenser::getLabel, Comparator.nullsLast(String::compareToIgnoreCase))
+			)
+			;
+
+	@Override
+	protected int compareNotEqual(TicketDispenser otherEntity)
+	{
+		int compare = LABEL_COMPARATOR.compare(this, otherEntity);
+		if (compare == 0)
+		{
+			compare = super.compareNotEqual(otherEntity);
+		}
+		return compare;
 	}
 
 }

@@ -1,7 +1,12 @@
-package eu.giulioquaresima.unicam.turns.service.application;
+package eu.giulioquaresima.unicam.turns.domain.service;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 
+/**
+ * 
+ * 
+ * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
+ */
 public interface UserServices
 {
 	/**
