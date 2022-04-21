@@ -1,16 +1,21 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-@Embeddable
-public class Ticket
+@Entity
+public class Ticket extends AbstractEntity<Ticket>
 {
+	@ManyToOne (optional = false)
+	@JoinColumn (nullable = false)
+	private Session session;
+	
 	@NotNull
 	@Column (nullable = false)
 	private int number;
@@ -21,18 +26,27 @@ public class Ticket
 	
 	@NotNull
 	@Column (nullable = false)
-	private LocalDateTime withrawTime;
+	private LocalDateTime withdrawTime;
+	
+	@ManyToOne (optional = true)
+	private User owner;
 	
 	public Ticket()
 	{
 		super();
 	}
-	public Ticket(@NotNull int number, @NotNull UUID uniqueIdentifier, @NotNull LocalDateTime withrawTime)
+	public Ticket(
+			@NotNull Session session,
+			@NotNull int number, 
+			@NotNull UUID uniqueIdentifier, 
+			@NotNull LocalDateTime withrawTime, User owner)
 	{
 		super();
+		this.session = session;
 		this.number = number;
 		this.uniqueIdentifier = uniqueIdentifier;
-		this.withrawTime = withrawTime;
+		this.withdrawTime = withrawTime;
+		this.owner = owner;
 	}
 
 	public int getNumber()
@@ -63,13 +77,22 @@ public class Ticket
 	}
 	
 	@NotNull
-	public LocalDateTime getWithrawTime()
+	public LocalDateTime getWithdrawTime()
 	{
-		return withrawTime;
+		return withdrawTime;
 	}
-	public void setWithrawTime(LocalDateTime withrawTime)
+	public void setWithdrawTime(LocalDateTime withdrawTime)
 	{
-		this.withrawTime = withrawTime;
+		this.withdrawTime = withdrawTime;
+	}
+	
+	public User getOwner()
+	{
+		return owner;
+	}
+	public void setOwner(User owner)
+	{
+		this.owner = owner;
 	}
 	
 	@Override
@@ -83,16 +106,13 @@ public class Ticket
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	protected Ticket castOrNull(Object obj)
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Ticket other = (Ticket) obj;
-		return Objects.equals(uniqueIdentifier, other.uniqueIdentifier);
+		if (obj instanceof Ticket)
+		{
+			return (Ticket) obj;
+		}
+		return null;
 	}
 	
 }

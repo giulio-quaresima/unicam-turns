@@ -7,10 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.validation.constraints.NotNull;
 
@@ -35,7 +36,7 @@ public class Session extends AbstractEntity<Session>
 	@Column
 	private LocalDateTime endTime;
 	
-	@ElementCollection
+	@OneToMany (mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn
 	private List<Ticket> tickets = new ArrayList<>();
 	
@@ -88,18 +89,29 @@ public class Session extends AbstractEntity<Session>
 	 * @return A valid ticket if the session {@link #isOpenNow(Clock)},
 	 * otherwise <code>null</code>. 
 	 */
-	public Ticket withraw(Clock clock)
+	public Ticket withdraw(Clock clock, @Nullable User owner)
 	{
 		LocalDateTime now = now(clock);
 		
 		if (isOpen(now))
 		{
-			Ticket ticket = new Ticket(tickets.size(), UUID.randomUUID(), now);
+			Ticket ticket = new Ticket(this, tickets.size(), UUID.randomUUID(), now, owner);
 			tickets.add(ticket);
 			return ticket;
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Withdraw anonymously a ticket now.
+	 * 
+	 * @param clock
+	 * @return
+	 */
+	public Ticket withdraw(Clock clock)
+	{
+		return withdraw(clock, null);
 	}
 	
 	/**

@@ -45,7 +45,7 @@ public class TestTickets extends AbstractTest
 		assertThat(session.getId()).isNotNull();
 		assertThat(session.getStartTime()).isNull();
 		assertThat(!session.isOpenNow(clock));
-		assertThat(session.withraw(clock)).isNull();
+		assertThat(session.withdraw(clock)).isNull();
 		assertThat(session.draw(clock)).isNull();
 		
 		session.startNow(clock);
@@ -57,10 +57,10 @@ public class TestTickets extends AbstractTest
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(-1);
 		assertThat(session.draw(clock)).isNull();
 		
-		Ticket ticket = session.withraw(clock);
+		Ticket ticket = session.withdraw(clock);
 		assertThat(ticket).isNotNull();
 		assertThat(ticket.getUniqueIdentifier()).isNotNull();
-		assertThat(ticket.getWithrawTime()).isNotNull();
+		assertThat(ticket.getWithdrawTime()).isNotNull();
 		assertThat(session.getTickets()).size().isEqualTo(1);
 		assertThat(ticket.getHumanFriendlyNumber()).isEqualTo((long) session.getTickets().size());
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(-1);
@@ -69,13 +69,13 @@ public class TestTickets extends AbstractTest
 		assertThat(drawnTicket).isEqualTo(ticket);
 		assertThat(session.draw(clock)).isNull();
 		
-		assertThat(session.withraw(clock)).isNotNull();
+		assertThat(session.withdraw(clock)).isNotNull();
 		assertThat(session.draw(clock)).isNotNull();
-		assertThat(session.withraw(clock)).isNotNull();
+		assertThat(session.withdraw(clock)).isNotNull();
 		
 		session.endNow(clock);
 		
-		assertThat(session.withraw(clock)).isNull();
+		assertThat(session.withdraw(clock)).isNull();
 		assertThat(session.draw(clock)).isNull();
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(1);
 		assertThat(session.getTickets()).size().isEqualTo(3);
@@ -96,7 +96,7 @@ public class TestTickets extends AbstractTest
 		session = sessionRepository.save(session);
 		long sessionId = session.getId();
 		
-		Ticket ticket = session.withraw(clock);
+		Ticket ticket = session.withdraw(clock);
 		UUID uuid = ticket.getUniqueIdentifier();
 		
 		entityManager.flush();
@@ -133,7 +133,7 @@ public class TestTickets extends AbstractTest
 		// Withraw some tickets, the office is closed yet.
 		for (int count = 0; count < 1024 * 1024; count++)
 		{
-			Ticket ticket = session.withraw(clock);
+			Ticket ticket = session.withdraw(clock);
 			withrawnUuids.add(ticket.getUniqueIdentifier());
 			countWithrawals++;
 			assertThat(countWithrawals).isEqualTo(withrawnUuids.size());
@@ -146,7 +146,7 @@ public class TestTickets extends AbstractTest
 			Ticket ticket;
 			if (randomGenerator.nextBoolean() && randomGenerator.nextBoolean()) // 0.25 likelihood
 			{
-				ticket = session.withraw(clock);
+				ticket = session.withdraw(clock);
 				withrawnUuids.add(ticket.getUniqueIdentifier());
 				countWithrawals++;
 			}

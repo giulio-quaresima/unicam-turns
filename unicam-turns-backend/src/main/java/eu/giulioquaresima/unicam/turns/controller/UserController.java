@@ -55,7 +55,7 @@ public class UserController
 			Session session = ticketDispenser.getCurrentSession(clockService.getClock());
 			if (session != null)
 			{
-				Ticket ticket = session.withraw(clockService.getClock());
+				Ticket ticket = session.withdraw(clockService.getClock(), null);
 				if (ticket != null)
 				{
 					sessionRepository.save(session);

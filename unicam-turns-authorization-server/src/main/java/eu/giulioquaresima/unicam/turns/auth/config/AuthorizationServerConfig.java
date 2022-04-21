@@ -60,10 +60,7 @@ public class AuthorizationServerConfig
     		.clientId("unicam-turns-app")
     		.clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE, no client authentication
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-    		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-//    		.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-//    		.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-    		//.clientSettings(ClientSettings.builder().requireProofKey(false))
+//    		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
 //    		.redirectUri("https://oidcdebugger.com/debug")
     		.redirectUri("http://unicam-turns-app:8100")
     		.scope(OidcScopes.OPENID)
@@ -72,8 +69,8 @@ public class AuthorizationServerConfig
     		.tokenSettings(TokenSettings
     				.builder()
     				/*
-    				 * FIXME
-    				 * Due gh-297 to https://github.com/spring-projects/spring-authorization-server/issues/297
+    				 * FIXME #1
+    				 * Due to https://github.com/spring-projects/spring-authorization-server/issues/297
     				 * there is no longer support for refresh_token with public clients, 
     				 * as a workaround I set a ridiculously log lifetime span to the access_token (one year!)
     				 */

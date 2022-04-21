@@ -21,6 +21,24 @@ public class User extends AbstractEntity<User>
 	@ManyToMany
 	private Set<Owner> owners = new HashSet<>();
 	
+	public String getUsername()
+	{
+		return username;
+	}
+	public void setUsername(String username)
+	{
+		this.username = username;
+	}
+
+	public Set<Owner> getOwners()
+	{
+		return owners;
+	}
+	public void setOwners(Set<Owner> owners)
+	{
+		this.owners = owners;
+	}
+
 	@Override
 	protected User castOrNull(Object obj)
 	{
