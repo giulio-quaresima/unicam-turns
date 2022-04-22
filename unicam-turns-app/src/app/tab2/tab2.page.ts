@@ -21,9 +21,17 @@ export class Tab2Page implements OnInit {
     ) {}
   
   ngOnInit() : void {
+    console.log("adsfiajeolerujtqaerogioijaerogiajeri");
     this.reloadList();
   }
-  
+
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
+  ionViewWillEnter() : void {
+    this.ngOnInit();
+  }  
+
   reloadList() : void {
     this.ownerApi.ticketDispensersList().then(response => this.ticketDispensers = response.payload);
   }

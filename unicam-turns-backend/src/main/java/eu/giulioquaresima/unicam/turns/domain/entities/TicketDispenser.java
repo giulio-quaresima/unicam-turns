@@ -73,6 +73,7 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	{
 		return findFirstMatchingSession(s -> s.isOpen(localDateTime)).orElse(null);
 	}
+	@JsonIgnore
 	public Session getCurrentSession()
 	{
 		return findFirstMatchingSession(Session::isOpen).orElse(null);

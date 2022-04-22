@@ -31,6 +31,10 @@ export class TicketDispenserComponent implements OnInit {
     this.ownerApi.startSession(this.ticketDispenser.id).then(response => {this.currentSession = response.payload; console.log(this.currentSession)});
   }
 
+  endSession() {
+    this.ownerApi.endSession(this.ticketDispenser.id).then(response => {this.currentSession = response.payload; console.log(this.currentSession)});
+  }
+
   close() {
     this.router.navigate(['../..'], {relativeTo : this.activatedRoute});
   }
