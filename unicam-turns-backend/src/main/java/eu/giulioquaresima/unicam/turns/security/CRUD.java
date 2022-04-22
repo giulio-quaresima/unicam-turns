@@ -35,7 +35,7 @@ public enum CRUD implements Permission
 			}
 			
 			String givenPermission = name();
-			if (givenPermission.length() > requiredPermissionStr.length())
+			if (givenPermission.length() >= requiredPermissionStr.length())
 			{
 				char[] charArray = requiredPermissionStr.toCharArray();
 				for (int index = 0; index < charArray.length; index++)

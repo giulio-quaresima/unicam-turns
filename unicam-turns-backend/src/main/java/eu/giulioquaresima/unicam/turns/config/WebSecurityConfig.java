@@ -20,10 +20,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			// by default uses a Bean by the name of corsConfigurationSource
 			.cors()
 			.and()
-			.authorizeHttpRequests(authorize -> authorize
-		            .anyRequest().authenticated()
-		        )
-		        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+			.authorizeHttpRequests().antMatchers("/user/**").authenticated()
+			.and()
+			.authorizeHttpRequests().antMatchers("/owner/**").authenticated()
+			.and()
+			.authorizeHttpRequests().antMatchers("/**").permitAll()
+			.and()
+			.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 	}
 
 	@Bean

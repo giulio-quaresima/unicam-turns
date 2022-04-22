@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.SortNatural;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * The virtual owner of one ore more ticket dispensers: one or more real people can act impersonating
  * the same owner; the owner can control the whole lifecycle of the ticket dispensers he owns, starting and
@@ -36,6 +38,7 @@ public class Owner extends AbstractEntity<Owner>
 	
 	@SortNatural
 	@OneToMany (mappedBy = "owner")
+	@JsonIgnore
 	private SortedSet<TicketDispenser> ticketDispensers = new TreeSet<>();
 
 	public Owner()

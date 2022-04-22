@@ -3,6 +3,7 @@ package eu.giulioquaresima.unicam.turns.domain.service;
 import java.util.List;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
+import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 
 /**
@@ -54,5 +55,25 @@ public interface TicketDispenserServices
 	 * an active session.
 	 */
 	Session stop(TicketDispenser ticketDispenser);
+	
+	/**
+	 * Draw the next ticket of the currently active session, if any.
+	 * 
+	 * @param ticketDispenser
+	 * 
+	 * @return The next ticket, <code>null</code> if there is no active session,
+	 * or if there are no more withdrew ticket in the dispenser.
+	 */
+	Ticket draw(TicketDispenser ticketDispenser);
+	
+	/**
+	 * Get the current ticket of the currently active session, if any.
+	 * 
+	 * @param ticketDispenser
+	 * 
+	 * @return The current ticket, <code>null</code> if there is no active session,
+	 * or if no ticket has drawn yet.
+	 */
+	Ticket current(TicketDispenser ticketDispenser);
 	
 }

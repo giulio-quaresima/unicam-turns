@@ -1,7 +1,7 @@
 package eu.giulioquaresima.unicam.turns.security;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
@@ -10,12 +10,14 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 
+import eu.giulioquaresima.unicam.turns.domain.entities.AbstractEntity;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
@@ -30,17 +32,15 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator
 	@Autowired
 	private UserRepository userRepository;
 	
+	@SuppressWarnings("rawtypes")
 	@Autowired
-	private ConversionService conversionService;
-	
-	@Autowired
-	private Set<EntityPermissionEvaluator<Object>> entityPermissionEvaluators;
+	private List<EntityPermissionEvaluator> entityPermissionEvaluators;
 
 	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission)
 	{
 		final User user = from(authentication);
-		final Predicate<EntityPermissionEvaluator<Object>> filter = filter(authentication, user, targetDomainObject, permission);
+		final Predicate<EntityPermissionEvaluator> filter = filter(authentication, user, targetDomainObject, permission);
 		return entityPermissionEvaluators.stream().anyMatch(filter);
 	}
 
@@ -53,7 +53,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator
 		return null;
 	}
 
-	private Predicate<EntityPermissionEvaluator<Object>> filter(Authentication authentication, User user, Object targetDomainObject, Object permission)
+	private Predicate<EntityPermissionEvaluator> filter(Authentication authentication, User user, Object targetDomainObject, Object permission)
 	{
 		return entityPermissionEvaluator -> {
 			return 
@@ -65,23 +65,52 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator
 	}
 
 	@Override
+	@Transactional (readOnly = true, propagation = Propagation.SUPPORTS)
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetTypeStr, Object permission)
 	{
 		if (targetId != null && targetTypeStr != null)
 		{
-			try
+			Integer id = null;
+			if (targetId instanceof Number)
 			{
-				Class<?> targetType = ClassUtils.forName(targetTypeStr, null);
-				if (conversionService.canConvert(String.class, targetType))
+				if (targetId instanceof Integer)
 				{
-					return hasPermission(authentication, conversionService.convert(targetId, targetType), permission);
+					id = (Integer) targetId;
+				}
+				else
+				{
+					id = ((Number) targetId).intValue();
 				}
 			}
-			catch (ClassNotFoundException | LinkageError e)
+			else 
 			{
-				LOGGER.error(e.getMessage(), e);
+				String targetIdStr = targetId.toString().trim();
+				if (targetIdStr.matches("\\d+"))
+				{
+					id = Integer.parseInt(targetIdStr);
+				}
+			}
+			if (id != null)
+			{
+				try
+				{
+					Class<?> targetType = ClassUtils.forName(targetTypeStr, null);
+					if (AbstractEntity.class.isAssignableFrom(targetType))
+					{
+						Object targetDomainObject = entityManager.find(targetType, id);
+						if (targetDomainObject != null)
+						{
+							return hasPermission(authentication, targetDomainObject, permission);
+						}
+					}
+				}
+				catch (ClassNotFoundException | LinkageError e)
+				{
+					LOGGER.error(e.getMessage(), e);
+				}
 			}
 		}
+		
 		return false;
 	}
 

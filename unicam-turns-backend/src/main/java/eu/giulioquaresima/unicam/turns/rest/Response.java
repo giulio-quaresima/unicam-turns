@@ -1,5 +1,9 @@
 package eu.giulioquaresima.unicam.turns.rest;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+
 /**
  * A simple REST response object 
  * inspired by https://stackoverflow.com/q/12806386/853544 
@@ -37,9 +41,19 @@ public class Response<P>
 	{
 		return new Response<>(payload);
 	}
-	public static <P> Response<P> of(P payload, int errorCode, String errorMessage)
+	public static <P> Response<P> of(@Nullable P payload, int errorCode, String errorMessage)
 	{
 		return new Response<>(payload, errorCode, errorMessage);
+	}
+	
+	public static <P> ResponseEntity<Response<P>> ok(P payload)
+	{
+		return ResponseEntity.ok(of(payload));
+	}
+
+	public static <P> ResponseEntity<Response<P>> ko(@Nullable P payload, HttpStatus httpStatus, String errorMessage)
+	{
+		return ResponseEntity.status(httpStatus).body(of(payload, httpStatus.value(), errorMessage));
 	}
 
 	public P getPayload()

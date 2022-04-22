@@ -114,6 +114,21 @@ public class Session extends AbstractEntity<Session>
 		return withdraw(clock, null);
 	}
 	
+	public Ticket currentTicket(Clock clock)
+	{
+		LocalDateTime now = now(clock);
+		
+		if (isOpen(now))
+		{
+			if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
+			{
+				return tickets.get(currentTicketIndex);
+			}
+		}
+		
+		return null;		
+	}
+	
 	/**
 	 * Draw the next ticket, if there are still any not drawn.
 	 * 

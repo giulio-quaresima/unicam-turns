@@ -1,16 +1,14 @@
 package eu.giulioquaresima.unicam.turns.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,9 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.service.TicketDispenserServices;
-import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 import eu.giulioquaresima.unicam.turns.rest.Response;
-import eu.giulioquaresima.unicam.turns.service.infrastructure.TimeServices;
 
 /**
  * 
@@ -37,13 +33,7 @@ import eu.giulioquaresima.unicam.turns.service.infrastructure.TimeServices;
 @PreAuthorize("isAuthenticated()")
 public class OwnerController
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(OwnerController.class);
-	
-	@Autowired
-	private TimeServices timeServices;
-	
-	@Autowired
-	private SessionRepository sessionRepository;
+//	private static final Logger LOGGER = LoggerFactory.getLogger(OwnerController.class);
 	
 	@Autowired
 	private TicketDispenserServices ticketDispenserServices;
@@ -51,7 +41,7 @@ public class OwnerController
 	@GetMapping ("/ticketDispensers")
 	public ResponseEntity<Response<List<TicketDispenser>>> list()
 	{
-		return ResponseEntity.ok(Response.of(ticketDispenserServices.listOwnDispensers()));
+		return Response.ok(ticketDispenserServices.listOwnDispensers());
 	}
 	
 	@PostMapping ("/ticketDispensers")
@@ -62,30 +52,30 @@ public class OwnerController
 	{
 		if (bindingResult.hasErrors())
 		{
-			return ResponseEntity.badRequest().body(Response.of(ticketDispenser, HttpStatus.BAD_REQUEST.value(), "Missing required value"));
+			return Response.ko(ticketDispenser, HttpStatus.BAD_REQUEST, "Missing required value");
 		}
-		return ResponseEntity.ok(Response.of(ticketDispenserServices.create(ticketDispenser)));
+		return Response.ok(ticketDispenserServices.create(ticketDispenser));
 	}
 	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/start")
+	@PreAuthorize ("hasPermission('U')")
 	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser)
 	{
-		Optional<Session> optionalSession = Optional.empty();
-		if (ticketDispenser != null)
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		return Response.ok(ticketDispenserServices.start(ticketDispenser));
+	}
+	
+	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/stop")
+	@PreAuthorize ("hasPermission('U')")
+	public ResponseEntity<Response<Session>> stopSession(@PathVariable TicketDispenser ticketDispenser)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		Session session = ticketDispenserServices.stop(ticketDispenser);
+		if (session == null)
 		{
-			Session session = ticketDispenser.getCurrentSession(timeServices.getSystemClock());
-			if (session == null)
-			{
-				session = ticketDispenser.createSession();
-				session.startNow(timeServices.getSystemClock());
-				optionalSession = Optional.of(sessionRepository.save(session));
-			}
+			return Response.ko(session, HttpStatus.NOT_FOUND, "No active session");
 		}
-		else
-		{
-			LOGGER.info("No TicketDispenser found with the given id");
-		}
-		return ResponseEntity.of(optionalSession);
+		return Response.ok(session);
 	}
 	
 }

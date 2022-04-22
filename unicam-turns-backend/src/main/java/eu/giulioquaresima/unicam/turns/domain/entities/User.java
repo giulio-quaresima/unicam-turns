@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -12,6 +14,8 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.NaturalId;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 
@@ -26,7 +30,13 @@ public class User extends AbstractEntity<User>
 	@NaturalId
 	private String username;
 	
+	// Column "OWNERS0_.OWNERS_USERS_ID" not found
 	@ManyToMany
+	@JoinTable (
+			joinColumns = @JoinColumn (name = "user_id"),
+			inverseJoinColumns = @JoinColumn (name = "owners_id")
+			)
+	@JsonIgnore
 	private Set<Owner> owners = new HashSet<>();
 	
 	@OneToMany (mappedBy = "owner")

@@ -64,10 +64,14 @@ public class TestTickets extends AbstractTest
 		assertThat(session.getTickets()).size().isEqualTo(1);
 		assertThat(ticket.getHumanFriendlyNumber()).isEqualTo((long) session.getTickets().size());
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(-1);
+		assertThat(session.currentTicket(clock)).isNull();
 		
 		Ticket drawnTicket = session.draw(clock);
 		assertThat(drawnTicket).isEqualTo(ticket);
+		assertThat(drawnTicket).isEqualTo(session.currentTicket(clock));
 		assertThat(session.draw(clock)).isNull();
+		assertThat(session.currentTicket(clock)).isNotNull();
+		assertThat(drawnTicket).isEqualTo(session.currentTicket(clock));
 		
 		assertThat(session.withdraw(clock)).isNotNull();
 		assertThat(session.draw(clock)).isNotNull();

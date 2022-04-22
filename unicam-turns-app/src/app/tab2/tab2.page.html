@@ -13,5 +13,18 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-list>
+    <ion-item>
+      <ion-label>Crea nuovo dispenser</ion-label>
+      <ion-input [(ngModel)]="newTicketDispenserLabel" placeholder="Nome"></ion-input>
+      <ion-button (click)="createTicketDispenser()">Crea</ion-button>
+    </ion-item>
+    <ion-item *ngFor="let ticketDispenser of ticketDispensers;">
+      <ion-label>
+        <h2>{{ticketDispenser.label}}</h2>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
   <app-explore-container name="Tab 2 page"></app-explore-container>
 </ion-content>
