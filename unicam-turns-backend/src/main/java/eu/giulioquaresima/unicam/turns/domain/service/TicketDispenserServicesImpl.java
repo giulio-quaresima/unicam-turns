@@ -1,6 +1,5 @@
 package eu.giulioquaresima.unicam.turns.domain.service;
 
-import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +19,6 @@ import eu.giulioquaresima.unicam.turns.repository.OwnerRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 import eu.giulioquaresima.unicam.turns.repository.TicketDispenserRepository;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
-import eu.giulioquaresima.unicam.turns.service.infrastructure.TimeServices;
 
 @Service
 @Transactional (readOnly = true, propagation = Propagation.SUPPORTS)
@@ -41,9 +39,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	@Autowired
 	private UserServices userServices;
 	
-	@Autowired
-	private TimeServices timeServices;
-
 	@Override
 	public List<TicketDispenser> listOwnDispensers()
 	{
@@ -68,6 +63,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	public TicketDispenser create(TicketDispenser template) throws IllegalArgumentException, IllegalStateException
 	{
 		Assert.notNull(template, "template required");
+		Assert.notNull(template.getZoneId(), "template.zoneId required");
 		Assert.hasText(template.getLabel(), "template.label required");
 		
 		if (template.getOwner() == null)
@@ -105,13 +101,12 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 		
-		Clock clock = timeServices.getSystemClock();
-		Session session = getCurrentSession(ticketDispenser, clock);
+		Session session = getCurrentSession(ticketDispenser);
 		
 		if (session == null)
 		{
 			session = ticketDispenser.createSession();
-			session.startNow(clock);
+			session.start();
 			session = sessionRepository.save(session);
 		}
 		
@@ -124,12 +119,11 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 
-		Clock clock = timeServices.getSystemClock();
-		Session session = getCurrentSession(ticketDispenser, clock);
+		Session session = getCurrentSession(ticketDispenser);
 		
 		if (session != null)
 		{
-			session.endNow(clock);
+			session.end();
 			session = sessionRepository.save(session);
 		}
 		
@@ -142,12 +136,11 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 
-		Clock clock = timeServices.getSystemClock();
-		Session session = getCurrentSession(ticketDispenser, clock);
+		Session session = getCurrentSession(ticketDispenser);
 		
 		if (session != null)
 		{
-			Ticket ticket = session.draw(clock);
+			Ticket ticket = session.draw();
 			session = sessionRepository.save(session);
 			return ticket;
 		}
@@ -160,25 +153,24 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 
-		Clock clock = timeServices.getSystemClock();
-		Session session = getCurrentSession(ticketDispenser, clock);
+		Session session = getCurrentSession(ticketDispenser);
 		
 		if (session != null)
 		{
-			return session.currentTicket(clock);
+			return session.currentTicket();
 		}
 		
 		return null;
 	}
 
-	protected Session getCurrentSession(TicketDispenser ticketDispenser, Clock clock)
+	protected Session getCurrentSession(TicketDispenser ticketDispenser)
 	{
 		/* TODO
 		 * Quando le sessioni diverranno nell'ordine delle migliaia 
 		 * sarebbe opportuno ottimizzare con una query, ma ora non
 		 * è il caso.
 		 */
-		return ticketDispenser.getCurrentSession(clock);
+		return ticketDispenser.getCurrentSession();
 	}
 
 }

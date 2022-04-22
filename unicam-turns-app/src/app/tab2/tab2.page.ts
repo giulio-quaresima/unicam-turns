@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TicketDispenser } from '../domain/ticket-dispenser';
 import { OwnerApi } from '../service/owner-api';
 
@@ -13,7 +14,11 @@ export class Tab2Page implements OnInit {
 
   public newTicketDispenserLabel : string;
 
-  constructor(private ownerApi : OwnerApi) {}
+  constructor(
+    private ownerApi : OwnerApi,
+    private router : Router,
+    private activatedRoute : ActivatedRoute
+    ) {}
   
   ngOnInit() : void {
     this.reloadList();
@@ -30,6 +35,10 @@ export class Tab2Page implements OnInit {
         this.newTicketDispenserLabel = "";
       }
     });
+  }
+
+  openDispenserDetail(id : number) {
+    this.router.navigate(['dispenser/' + id], {relativeTo : this.activatedRoute});
   }
 
 }

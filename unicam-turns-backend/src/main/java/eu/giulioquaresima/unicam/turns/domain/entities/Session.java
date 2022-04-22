@@ -1,6 +1,5 @@
 package eu.giulioquaresima.unicam.turns.domain.entities;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,27 +57,27 @@ public class Session extends AbstractEntity<Session>
 				tickets.size() < limit
 				;
 	}
-	public boolean isOpenNow(Clock clock)
+	public boolean isOpen()
 	{
-		return isOpen(now(clock));
+		return isOpen(now());
 	}
 	
 	public void start(LocalDateTime givenTime)
 	{
 		setStartTime(givenTime);
 	}
-	public void startNow(Clock clock)
+	public void start()
 	{
-		start(now(clock));
+		start(now());
 	}
 	
 	public void end(LocalDateTime givenTime)
 	{
 		setEndTime(givenTime);
 	}
-	public void endNow(Clock clock)
+	public void end()
 	{
-		end(now(clock));
+		end(now());
 	}
 	
 	/**
@@ -89,13 +88,11 @@ public class Session extends AbstractEntity<Session>
 	 * @return A valid ticket if the session {@link #isOpenNow(Clock)},
 	 * otherwise <code>null</code>. 
 	 */
-	public Ticket withdraw(Clock clock, @Nullable User owner)
+	public Ticket withdraw(@Nullable User owner)
 	{
-		LocalDateTime now = now(clock);
-		
-		if (isOpen(now))
+		if (isOpen())
 		{
-			Ticket ticket = new Ticket(this, tickets.size(), UUID.randomUUID(), now, owner);
+			Ticket ticket = new Ticket(this, tickets.size(), UUID.randomUUID(), now(), owner);
 			tickets.add(ticket);
 			return ticket;
 		}
@@ -109,16 +106,14 @@ public class Session extends AbstractEntity<Session>
 	 * @param clock
 	 * @return
 	 */
-	public Ticket withdraw(Clock clock)
+	public Ticket withdraw()
 	{
-		return withdraw(clock, null);
+		return withdraw(null);
 	}
 	
-	public Ticket currentTicket(Clock clock)
+	public Ticket currentTicket()
 	{
-		LocalDateTime now = now(clock);
-		
-		if (isOpen(now))
+		if (isOpen())
 		{
 			if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
 			{
@@ -137,11 +132,9 @@ public class Session extends AbstractEntity<Session>
 	 * @return The next ticket or <code>null</code> if tickets are finished or
 	 * the session is closed.
 	 */
-	public Ticket draw(Clock clock)
+	public Ticket draw()
 	{
-		LocalDateTime now = now(clock);
-		
-		if (isOpen(now))
+		if (isOpen())
 		{
 			int nextIndex = currentTicketIndex + 1;
 			if (nextIndex < tickets.size())
@@ -153,11 +146,6 @@ public class Session extends AbstractEntity<Session>
 		return null;
 	}
 	
-	protected LocalDateTime now(Clock clock)
-	{
-		return LocalDateTime.now(clock);
-	}
-
 	@Override
 	protected int compareNotEqual(Session otherEntity)
 	{
@@ -232,5 +220,14 @@ public class Session extends AbstractEntity<Session>
 			return (Session) obj;
 		}
 		return null;
+	}
+	
+	protected LocalDateTime now()
+	{
+		if (ticketDispenser != null)
+		{
+			return ticketDispenser.now();
+		}
+		return LocalDateTime.now();
 	}
 }

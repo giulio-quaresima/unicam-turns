@@ -1,5 +1,6 @@
 package eu.giulioquaresima.unicam.turns.controller;
 
+import java.time.ZoneId;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -47,27 +49,51 @@ public class OwnerController
 	@PostMapping ("/ticketDispensers")
 	@PreAuthorize ("hasPermission('C')")
 	public ResponseEntity<Response<TicketDispenser>> createDispenser(
+			ZoneId zoneId,
 			@Valid @RequestBody TicketDispenser ticketDispenser,
 			BindingResult bindingResult)
 	{
 		if (bindingResult.hasErrors())
 		{
-			return Response.ko(ticketDispenser, HttpStatus.BAD_REQUEST, "Missing required value");
+			if (bindingResult.getFieldErrorCount() == 1 && bindingResult.hasFieldErrors("zoneId"))
+			{
+				ticketDispenser.setZoneId(zoneId);
+			}
+			else
+			{
+				return Response.ko(ticketDispenser, HttpStatus.BAD_REQUEST, "Missing required value");
+			}
 		}
 		return Response.ok(ticketDispenserServices.create(ticketDispenser));
 	}
 	
-	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/start")
+	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}")
+	@PreAuthorize ("hasPermission('R')")
+	public ResponseEntity<Response<TicketDispenser>> dispenser(@PathVariable TicketDispenser ticketDispenser)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		return Response.ok(ticketDispenser);
+	}
+	
+	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/start")
 	@PreAuthorize ("hasPermission('U')")
-	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser)
+	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser, ZoneId zoneId)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
 		return Response.ok(ticketDispenserServices.start(ticketDispenser));
 	}
 	
-	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/stop")
+	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/current")
 	@PreAuthorize ("hasPermission('U')")
-	public ResponseEntity<Response<Session>> stopSession(@PathVariable TicketDispenser ticketDispenser)
+	public ResponseEntity<Response<Session>> currentSession(@PathVariable TicketDispenser ticketDispenser)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		return Response.ok(ticketDispenser.getCurrentSession());
+	}
+	
+	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/end")
+	@PreAuthorize ("hasPermission('U')")
+	public ResponseEntity<Response<Session>> endSession(@PathVariable TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
 		Session session = ticketDispenserServices.stop(ticketDispenser);

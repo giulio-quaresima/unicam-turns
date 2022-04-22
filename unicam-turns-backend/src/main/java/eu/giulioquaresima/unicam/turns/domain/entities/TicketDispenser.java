@@ -2,6 +2,7 @@ package eu.giulioquaresima.unicam.turns.domain.entities;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -9,12 +10,17 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.SortNatural;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import eu.giulioquaresima.unicam.turns.domain.entities.converters.ZoneIdConverter;
 
 /**
  * This entity identifies a virtual dispenser of digital tickets.
@@ -27,6 +33,11 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	@NotNull
 	@Column (nullable = false)
 	private String label;
+	
+	@NotNull
+	@Column (nullable = false)
+	@Convert (converter = ZoneIdConverter.class)
+	private ZoneId zoneId;
 	
 	@ManyToOne (optional = false)
 	private Owner owner;
@@ -46,10 +57,11 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	{
 		super();
 	}
-	public TicketDispenser(String label, Owner owner)
+	public TicketDispenser(String label, ZoneId zoneId, Owner owner)
 	{
 		this();
 		this.label = label;
+		this.zoneId = zoneId;
 		this.owner = owner;
 	}
 	
@@ -61,9 +73,9 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	{
 		return findFirstMatchingSession(s -> s.isOpen(localDateTime)).orElse(null);
 	}
-	public Session getCurrentSession(Clock clock)
+	public Session getCurrentSession()
 	{
-		return findFirstMatchingSession(s -> s.isOpenNow(clock)).orElse(null);
+		return findFirstMatchingSession(Session::isOpen).orElse(null);
 	}
 	
 	public String getLabel()
@@ -73,6 +85,30 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 	public void setLabel(String label)
 	{
 		this.label = label;
+	}
+
+	public ZoneId getZoneId()
+	{
+		return zoneId;
+	}
+	public void setZoneId(ZoneId zoneId)
+	{
+		this.zoneId = zoneId;
+	}
+	
+	@JsonIgnore
+	public Clock getClock()
+	{
+		if (zoneId != null)
+		{
+			return Clock.system(zoneId);
+		}
+		return Clock.systemDefaultZone();
+	}
+	
+	protected LocalDateTime now()
+	{
+		return LocalDateTime.now(getClock());
 	}
 
 	public Owner getOwner()

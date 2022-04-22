@@ -2,7 +2,7 @@ package eu.giulioquaresima.unicam.turns.test.integration.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Clock;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -32,11 +32,10 @@ public class TestTickets extends AbstractTest
 		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
 				new TicketDispenser(
 						"Farmacia Comunale AFAS n. 1",
+						ZoneId.systemDefault(), 
 						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		assertThat(ticketDispenser).isNotNull();
 		assertThat(ticketDispenser.getId()).isNotNull();
-		
-		Clock clock = Clock.systemUTC();
 		
 		Session session = ticketDispenser.createSession();
 		session = sessionRepository.save(session);
@@ -44,43 +43,43 @@ public class TestTickets extends AbstractTest
 		assertThat(session).isNotNull();
 		assertThat(session.getId()).isNotNull();
 		assertThat(session.getStartTime()).isNull();
-		assertThat(!session.isOpenNow(clock));
-		assertThat(session.withdraw(clock)).isNull();
-		assertThat(session.draw(clock)).isNull();
+		assertThat(!session.isOpen());
+		assertThat(session.withdraw()).isNull();
+		assertThat(session.draw()).isNull();
 		
-		session.startNow(clock);
+		session.start();
 		
-		assertThat(session.isOpenNow(clock));
+		assertThat(session.isOpen());
 		assertThat(session.getStartTime()).isNotNull();
 		assertThat(session.getEndTime()).isNull();
 		assertThat(session.getTickets()).isEmpty();
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(-1);
-		assertThat(session.draw(clock)).isNull();
+		assertThat(session.draw()).isNull();
 		
-		Ticket ticket = session.withdraw(clock);
+		Ticket ticket = session.withdraw();
 		assertThat(ticket).isNotNull();
 		assertThat(ticket.getUniqueIdentifier()).isNotNull();
 		assertThat(ticket.getWithdrawTime()).isNotNull();
 		assertThat(session.getTickets()).size().isEqualTo(1);
 		assertThat(ticket.getHumanFriendlyNumber()).isEqualTo((long) session.getTickets().size());
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(-1);
-		assertThat(session.currentTicket(clock)).isNull();
+		assertThat(session.currentTicket()).isNull();
 		
-		Ticket drawnTicket = session.draw(clock);
+		Ticket drawnTicket = session.draw();
 		assertThat(drawnTicket).isEqualTo(ticket);
-		assertThat(drawnTicket).isEqualTo(session.currentTicket(clock));
-		assertThat(session.draw(clock)).isNull();
-		assertThat(session.currentTicket(clock)).isNotNull();
-		assertThat(drawnTicket).isEqualTo(session.currentTicket(clock));
+		assertThat(drawnTicket).isEqualTo(session.currentTicket());
+		assertThat(session.draw()).isNull();
+		assertThat(session.currentTicket()).isNotNull();
+		assertThat(drawnTicket).isEqualTo(session.currentTicket());
 		
-		assertThat(session.withdraw(clock)).isNotNull();
-		assertThat(session.draw(clock)).isNotNull();
-		assertThat(session.withdraw(clock)).isNotNull();
+		assertThat(session.withdraw()).isNotNull();
+		assertThat(session.draw()).isNotNull();
+		assertThat(session.withdraw()).isNotNull();
 		
-		session.endNow(clock);
+		session.end();
 		
-		assertThat(session.withdraw(clock)).isNull();
-		assertThat(session.draw(clock)).isNull();
+		assertThat(session.withdraw()).isNull();
+		assertThat(session.draw()).isNull();
 		assertThat(session.getCurrentTicketIndex()).isEqualTo(1);
 		assertThat(session.getTickets()).size().isEqualTo(3);
 	}
@@ -91,16 +90,15 @@ public class TestTickets extends AbstractTest
 		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
 				new TicketDispenser(
 						"Farmacia Comunale AFAS n. 1",
+						ZoneId.systemDefault(), 
 						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		
-		Clock clock = Clock.systemUTC();
-		
 		Session session = ticketDispenser.createSession();
-		session.startNow(clock);
+		session.start();
 		session = sessionRepository.save(session);
 		long sessionId = session.getId();
 		
-		Ticket ticket = session.withdraw(clock);
+		Ticket ticket = session.withdraw();
 		UUID uuid = ticket.getUniqueIdentifier();
 		
 		entityManager.flush();
@@ -120,13 +118,13 @@ public class TestTickets extends AbstractTest
 		TicketDispenser ticketDispenser = ticketDispenserRepository.save(
 				new TicketDispenser(
 						"Farmacia Comunale AFAS n. 1",
+						ZoneId.systemDefault(), 
 						ownerRepository.save(new Owner("Farmacia Comunale AFAS n. 1"))));
 		
-		Clock clock = Clock.systemUTC();
 		RandomGenerator randomGenerator = new Random(-1873867143071539904L); // Same seed, repeatable test
 		
 		Session session = ticketDispenser.createSession();
-		session.startNow(clock);
+		session.start();
 		session = sessionRepository.save(session);
 		
 		Set<UUID> withrawnUuids = new HashSet<>();
@@ -137,7 +135,7 @@ public class TestTickets extends AbstractTest
 		// Withraw some tickets, the office is closed yet.
 		for (int count = 0; count < 1024 * 1024; count++)
 		{
-			Ticket ticket = session.withdraw(clock);
+			Ticket ticket = session.withdraw();
 			withrawnUuids.add(ticket.getUniqueIdentifier());
 			countWithrawals++;
 			assertThat(countWithrawals).isEqualTo(withrawnUuids.size());
@@ -150,13 +148,13 @@ public class TestTickets extends AbstractTest
 			Ticket ticket;
 			if (randomGenerator.nextBoolean() && randomGenerator.nextBoolean()) // 0.25 likelihood
 			{
-				ticket = session.withdraw(clock);
+				ticket = session.withdraw();
 				withrawnUuids.add(ticket.getUniqueIdentifier());
 				countWithrawals++;
 			}
 			else // 0.75 likelihood
 			{
-				ticket = session.draw(clock);
+				ticket = session.draw();
 				if (countDraws < countWithrawals)
 				{
 					assertThat(ticket).isNotNull();
@@ -174,7 +172,7 @@ public class TestTickets extends AbstractTest
 		// and no new people withraw new tickets
 		while (countDraws < countWithrawals)
 		{
-			Ticket ticket = session.draw(clock);
+			Ticket ticket = session.draw();
 			assertThat(ticket).isNotNull();
 			assertThat(withrawnUuids.remove(ticket.getUniqueIdentifier()));
 			countDraws++;
@@ -182,7 +180,7 @@ public class TestTickets extends AbstractTest
 		
 		// There are no other numbers to call (i.e. tickets to draw),
 		// the office can close.
-		assertThat(session.draw(clock)).isNull();
+		assertThat(session.draw()).isNull();
 		assertThat(withrawnUuids.isEmpty());
 	}
 	

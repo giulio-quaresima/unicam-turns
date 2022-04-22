@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Distributori
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -15,16 +15,20 @@
 
   <ion-list>
     <ion-item>
-      <ion-label>Crea nuovo dispenser</ion-label>
-      <ion-input [(ngModel)]="newTicketDispenserLabel" placeholder="Nome"></ion-input>
-      <ion-button (click)="createTicketDispenser()">Crea</ion-button>
+      <ion-label>Nuovo</ion-label>
+      <ion-input [(ngModel)]="newTicketDispenserLabel" placeholder="Scegli un nome" required="true" aria-required="true"></ion-input>
+      <ion-button (click)="createTicketDispenser()" color="success">
+        <ion-icon name="add-circle-outline" aria-label="Crea"></ion-icon>
+      </ion-button>
     </ion-item>
     <ion-item *ngFor="let ticketDispenser of ticketDispensers;">
       <ion-label>
         <h2>{{ticketDispenser.label}}</h2>
       </ion-label>
+      <ion-button item-right (click)="openDispenserDetail(ticketDispenser.id)">
+        <ion-icon name="open-outline" aria-label="Apri"></ion-icon>
+      </ion-button>
     </ion-item>
   </ion-list>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
 </ion-content>

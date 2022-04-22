@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpOptions } from "@capacitor-community/http";
+import { Session } from "../domain/session";
 import { TicketDispenser } from "../domain/ticket-dispenser";
 import { Response } from "./response";
 import { Rest } from "./rest";
@@ -31,6 +32,46 @@ export class OwnerApi {
         };
         return this.rest.post(httpOptions).then(response => {
             let data : Response<TicketDispenser> = response.data;
+            if (!data.success) {
+                console.log(data.error.message);
+            }
+            return data;
+        });
+    }
+
+    async dispenser(dispenserId : number) : Promise<Response<TicketDispenser>> {
+        return this.rest.get({url : "/owner/ticketDispensers/" + dispenserId}).then(response => {
+            let data : Response<TicketDispenser> = response.data;
+            if (!data.success) {
+                console.log(data.error.message);
+            }
+            return data;
+        });
+    }
+
+    async currentSession(dispenserId : number) : Promise<Response<Session>> {
+        return this.rest.get({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/current"}).then(response => {
+            let data : Response<Session> = response.data;
+            if (!data.success) {
+                console.log(data.error.message);
+            }
+            return data;
+        });
+    }
+
+    async startSession(dispenserId : number) : Promise<Response<Session>> {
+        return this.rest.put({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/start"}).then(response => {
+            let data : Response<Session> = response.data;
+            if (!data.success) {
+                console.log(data.error.message);
+            }
+            return data;
+        });
+    }
+
+    async endSession(dispenserId : number) : Promise<Response<Session>> {
+        return this.rest.put({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/end"}).then(response => {
+            let data : Response<Session> = response.data;
             if (!data.success) {
                 console.log(data.error.message);
             }
