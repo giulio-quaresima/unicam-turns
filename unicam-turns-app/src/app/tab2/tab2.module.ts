@@ -7,7 +7,7 @@ import { Tab2Page } from './tab2.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
-import { TicketDispenserComponent } from './submodules/ticket-dispenser/ticket-dispenser.component';
+import { TicketDispenserComponent } from './ticket-dispenser/ticket-dispenser.component'; 
 
 @NgModule({
   imports: [

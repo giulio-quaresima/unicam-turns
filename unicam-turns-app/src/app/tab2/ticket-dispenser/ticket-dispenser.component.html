@@ -1,0 +1,39 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="close()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ticketDispenser.label}}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-list>
+    <ion-list-header>
+      <ion-label>
+        <h2>Sessione <span *ngIf="currentSession.id">#{{currentSession.id + 1}}</span></h2>
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>Inizio</ion-label>
+      <ion-note color="success" slot="end">{{currentSession.startTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Fine</ion-label>
+      <ion-note color="danger" slot="end">{{currentSession.endTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
+    </ion-item>
+  </ion-list>
+
+  <section style="margin: 1em;">
+    <ion-button (click)="startSession()" *ngIf=" ! sessionStarted() " size="large" expand="block" color="success">
+      <ion-icon name="play-outline" aria-label="Play"></ion-icon>
+    </ion-button>
+    <ion-button (click)="endSession()"   *ngIf=" sessionStarted() "   size="large" expand="block" color="danger">
+      <ion-icon name="stop-outline" aria-label="Stop"></ion-icon>
+    </ion-button>
+  </section>
+
+</ion-content>

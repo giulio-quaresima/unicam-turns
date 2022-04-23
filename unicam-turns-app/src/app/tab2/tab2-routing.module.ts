@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TicketDispenserComponent } from './submodules/ticket-dispenser/ticket-dispenser.component';
+import { TicketDispenserComponent } from './ticket-dispenser/ticket-dispenser.component'; 
 import { Tab2Page } from './tab2.page';
 
 const routes: Routes = [
