@@ -75,20 +75,20 @@ public class OwnerController
 		return Response.ok(ticketDispenser);
 	}
 	
+	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/last")
+	@PreAuthorize ("hasPermission('U')")
+	public ResponseEntity<Response<Session>> currentSession(@PathVariable TicketDispenser ticketDispenser)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		return Response.ok(ticketDispenser.getLastSession());
+	}
+	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/start")
 	@PreAuthorize ("hasPermission('U')")
 	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser, ZoneId zoneId)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
 		return Response.ok(ticketDispenserServices.start(ticketDispenser));
-	}
-	
-	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/current")
-	@PreAuthorize ("hasPermission('U')")
-	public ResponseEntity<Response<Session>> currentSession(@PathVariable TicketDispenser ticketDispenser)
-	{
-		Assert.notNull(ticketDispenser, "ticketDispenser");
-		return Response.ok(ticketDispenser.getCurrentSession());
 	}
 	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/end")

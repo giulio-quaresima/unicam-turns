@@ -24,7 +24,11 @@ export class TicketDispenserComponent implements OnInit {
     let dispenserId : number = parseInt(this.activatedRoute.snapshot.paramMap.get("dispenserId"));
     console.log(dispenserId);
     this.ownerApi.dispenser(dispenserId).then(response => this.ticketDispenser = response.payload);
-    this.ownerApi.currentSession(dispenserId).then(response => this.currentSession = response.payload);
+    this.ownerApi.lastSession(dispenserId).then(response => this.currentSession = response.payload);
+  }
+
+  sessionStarted() : boolean {
+    return !!this.currentSession && this.currentSession.open;
   }
 
   startSession() {

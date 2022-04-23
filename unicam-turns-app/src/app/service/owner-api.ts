@@ -49,8 +49,8 @@ export class OwnerApi {
         });
     }
 
-    async currentSession(dispenserId : number) : Promise<Response<Session>> {
-        return this.rest.get({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/current"}).then(response => {
+    async lastSession(dispenserId : number) : Promise<Response<Session>> {
+        return this.rest.get({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/last"}).then(response => {
             let data : Response<Session> = response.data;
             if (!data.success) {
                 console.log(data.error.message);

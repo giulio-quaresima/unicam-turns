@@ -4,10 +4,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.Predicate;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -17,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.SortNatural;
+import org.springframework.lang.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -64,19 +63,32 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 		this.zoneId = zoneId;
 		this.owner = owner;
 	}
-	
-	public Optional<Session> findFirstMatchingSession(Predicate<Session> predicate)
+
+	@Nullable
+	@JsonIgnore
+	public Session getLastSession()
 	{
-		return sessions.stream().sorted().filter(predicate).findFirst();
+		if (sessions != null && !sessions.isEmpty())
+		{
+			return sessions.last();
+		}
+		return null;
 	}
+	@Nullable
 	public Session getCurrentSession(LocalDateTime localDateTime)
 	{
-		return findFirstMatchingSession(s -> s.isOpen(localDateTime)).orElse(null);
+		Session session = getLastSession();
+		if (session != null && session.isOpen(localDateTime))
+		{
+			return session;
+		}
+		return null;
 	}
+	@Nullable
 	@JsonIgnore
 	public Session getCurrentSession()
 	{
-		return findFirstMatchingSession(Session::isOpen).orElse(null);
+		return getCurrentSession(now());
 	}
 	
 	public String getLabel()

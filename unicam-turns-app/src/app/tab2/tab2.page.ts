@@ -21,7 +21,6 @@ export class Tab2Page implements OnInit {
     ) {}
   
   ngOnInit() : void {
-    console.log("adsfiajeolerujtqaerogioijaerogiajeri");
     this.reloadList();
   }
 

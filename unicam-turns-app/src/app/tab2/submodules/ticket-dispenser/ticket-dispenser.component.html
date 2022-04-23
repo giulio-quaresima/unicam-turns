@@ -10,5 +10,15 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <button (click)="startSession()">START!</button>
+
+  <section>
+    <header>Azioni</header>
+    <ion-button (click)="endSession()" *ngIf=" sessionStarted() " expand="block">
+      <ion-icon name="stop-outline" aria-label="Stop"></ion-icon>
+    </ion-button>
+    <ion-button (click)="startSession()" *ngIf=" ! sessionStarted() " expand="block">
+      <ion-icon name="play-outline" aria-label="Play"></ion-icon>
+    </ion-button>
+  </section>
+  
 </ion-content>
