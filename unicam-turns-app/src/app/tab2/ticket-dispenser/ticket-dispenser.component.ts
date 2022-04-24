@@ -11,8 +11,8 @@ import { OwnerApi } from 'src/app/service/owner-api';
 })
 export class TicketDispenserComponent implements OnInit {
 
-  public ticketDispenser : TicketDispenser = {} as TicketDispenser;
-  public currentSession : Session = {} as Session;
+  public ticketDispenser? : TicketDispenser = {} as TicketDispenser;
+  public currentSession? : Session = {} as Session;
 
   constructor(
     private ownerApi : OwnerApi,
@@ -22,13 +22,22 @@ export class TicketDispenserComponent implements OnInit {
 
   ngOnInit() {
     let dispenserId : number = parseInt(this.activatedRoute.snapshot.paramMap.get("dispenserId"));
-    console.log(dispenserId);
+    console.log("asgfassgasdgasdgd" + dispenserId);
     this.ownerApi.dispenser(dispenserId).then(response => this.ticketDispenser = response.payload);
     this.ownerApi.lastSession(dispenserId).then(response => this.currentSession = response.payload);
   }
 
   sessionStarted() : boolean {
     return !!this.currentSession && this.currentSession.open;
+  }
+
+  ticketsToDraw() : number {
+    if (this.sessionStarted()) {
+      if (!!this.currentSession.lastWithdrewTicket && !!this.currentSession.lastDrewTicket) {
+        return this.currentSession.lastWithdrewTicket.publicNumber - this.currentSession.lastDrewTicket.publicNumber;
+      }
+    }
+    return 0;
   }
 
   startSession() {

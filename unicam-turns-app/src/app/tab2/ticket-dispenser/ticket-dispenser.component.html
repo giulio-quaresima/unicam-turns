@@ -19,11 +19,23 @@
     </ion-list-header>
     <ion-item>
       <ion-label>Inizio</ion-label>
-      <ion-note color="success" slot="end">{{currentSession.startTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
+      <ion-note color="success" slot="end">{{currentSession?.startTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
     </ion-item>
     <ion-item>
       <ion-label>Fine</ion-label>
-      <ion-note color="danger" slot="end">{{currentSession.endTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
+      <ion-note color="danger" slot="end">{{currentSession?.endTime | date:'H:mm:ss - dd/MM/yy'}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Ultimo biglietto staccato</ion-label>
+      <ion-note color="primary" slot="end">{{currentSession?.lastWithdrewTicket?.publicNumber}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Ultimo biglietto chiamato</ion-label>
+      <ion-note color="primary" slot="end">{{currentSession?.lastDrewTicket?.publicNumber}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Clienti da servire</ion-label>
+      <ion-note color="primary" slot="end">{{ticketsToDraw()}}</ion-note>
     </ion-item>
   </ion-list>
 

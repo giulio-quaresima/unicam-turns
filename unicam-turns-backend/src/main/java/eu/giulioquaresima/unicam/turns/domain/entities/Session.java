@@ -83,8 +83,6 @@ public class Session extends AbstractEntity<Session>
 	/**
 	 * Withdraw a ticket now.
 	 * 
-	 * @param clock The clock which returns the current time.
-	 * 
 	 * @return A valid ticket if the session {@link #isOpenNow(Clock)},
 	 * otherwise <code>null</code>. 
 	 */
@@ -103,7 +101,6 @@ public class Session extends AbstractEntity<Session>
 	/**
 	 * Withdraw anonymously a ticket now.
 	 * 
-	 * @param clock
 	 * @return
 	 */
 	public Ticket withdraw()
@@ -111,13 +108,13 @@ public class Session extends AbstractEntity<Session>
 		return withdraw(null);
 	}
 	
-	public Ticket currentTicket()
+	public Ticket getLastWithdrewTicket()
 	{
 		if (isOpen())
 		{
-			if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
+			if (!tickets.isEmpty())
 			{
-				return tickets.get(currentTicketIndex);
+				return tickets.get(tickets.size() - 1);
 			}
 		}
 		
@@ -126,8 +123,6 @@ public class Session extends AbstractEntity<Session>
 	
 	/**
 	 * Draw the next ticket, if there are still any not drawn.
-	 * 
-	 * @param clock The clock which returns the current time.
 	 * 
 	 * @return The next ticket or <code>null</code> if tickets are finished or
 	 * the session is closed.
@@ -144,6 +139,19 @@ public class Session extends AbstractEntity<Session>
 		}
 		
 		return null;
+	}
+	
+	public Ticket getLastDrewTicket()
+	{
+		if (isOpen())
+		{
+			if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
+			{
+				return tickets.get(currentTicketIndex);
+			}
+		}
+		
+		return null;		
 	}
 	
 	@Override

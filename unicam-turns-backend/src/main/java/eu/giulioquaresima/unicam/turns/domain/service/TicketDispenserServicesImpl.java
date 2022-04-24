@@ -157,7 +157,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 		
 		if (session != null)
 		{
-			return session.currentTicket();
+			return session.getLastDrewTicket();
 		}
 		
 		return null;

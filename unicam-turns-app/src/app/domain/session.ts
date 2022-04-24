@@ -1,8 +1,11 @@
+import { Ticket } from "./ticket";
 import { TicketDispenser } from "./ticket-dispenser";
 
 export class Session {
     startTime : Date;
     endTime : Date;
     open : boolean;
-    tichetDispenser : TicketDispenser;
+    ticketDispenser : TicketDispenser;
+    lastWithdrewTicket : Ticket;
+    lastDrewTicket : Ticket;
 }

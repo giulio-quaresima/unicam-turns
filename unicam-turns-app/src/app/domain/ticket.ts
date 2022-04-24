@@ -1,5 +1,5 @@
 export class Ticket {
-    public number : number;
-    public humanFriendlyNumber : number;
+    public withdrawTime : Date;
+    public publicNumber : number;
     public uniqueIdentifier : String;
 }

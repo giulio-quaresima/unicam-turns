@@ -58,11 +58,12 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.number = number;
 	}
 	/**
-	 * Tickets generally starts from 1.
+	 * This is the ticket number that can be showed to users,
+	 * and depends from {@link #getNumber()}.
 	 * 
 	 * @return
 	 */
-	public long getHumanFriendlyNumber()
+	public long getPublicNumber()
 	{
 		return ((long) getNumber()) + 1L;
 	}
