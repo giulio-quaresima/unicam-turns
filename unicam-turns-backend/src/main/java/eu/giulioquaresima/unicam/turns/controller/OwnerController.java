@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,10 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.service.TicketDispenserServices;
 import eu.giulioquaresima.unicam.turns.rest.Response;
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 /**
  * 
@@ -77,6 +79,7 @@ public class OwnerController
 	
 	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/last")
 	@PreAuthorize ("hasPermission('U')")
+	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> currentSession(@PathVariable TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
@@ -85,6 +88,7 @@ public class OwnerController
 	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/start")
 	@PreAuthorize ("hasPermission('U')")
+	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser, ZoneId zoneId)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
@@ -93,6 +97,7 @@ public class OwnerController
 	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/end")
 	@PreAuthorize ("hasPermission('U')")
+	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> endSession(@PathVariable TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");

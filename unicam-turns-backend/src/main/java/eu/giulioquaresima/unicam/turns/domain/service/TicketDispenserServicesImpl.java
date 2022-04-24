@@ -18,6 +18,7 @@ import eu.giulioquaresima.unicam.turns.domain.entities.User;
 import eu.giulioquaresima.unicam.turns.repository.OwnerRepository;
 import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 import eu.giulioquaresima.unicam.turns.repository.TicketDispenserRepository;
+import eu.giulioquaresima.unicam.turns.repository.TicketRepository;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
 @Service
@@ -32,6 +33,9 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	
 	@Autowired
 	private SessionRepository sessionRepository;
+	
+	@Autowired
+	private TicketRepository ticketRepository;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -149,15 +153,35 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 	
 	@Override
-	public Ticket current(TicketDispenser ticketDispenser)
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
+	public Ticket withdraw(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 
+		User user = userServices.getCurrentUser(true);
 		Session session = getCurrentSession(ticketDispenser);
 		
-		if (session != null)
+		if (session != null && session.isOpen())
 		{
-			return session.getLastDrewTicket();
+			return ticketRepository.save(session.withdraw(user));
+		}
+		
+		return null;
+	}
+
+	@Override
+	public Ticket myCurrentTicket(TicketDispenser ticketDispenser)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser required");
+
+		User user = userServices.getCurrentUser(false);
+		if (user != null)
+		{
+			Session session = getCurrentSession(ticketDispenser);
+			if (session != null) // Non controllo se è aperta, tanto l'utente sa se è chiusa, ma vuole sapere comunque qual era il suo biglietto!
+			{
+				return session.findLastTicket(user);
+			}
 		}
 		
 		return null;

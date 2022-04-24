@@ -16,6 +16,10 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
+
 @Entity
 public class Session extends AbstractEntity<Session>
 {
@@ -108,17 +112,31 @@ public class Session extends AbstractEntity<Session>
 		return withdraw(null);
 	}
 	
+	@JsonView (JsonViews.SessionToTicket.class)
 	public Ticket getLastWithdrewTicket()
 	{
-		if (isOpen())
+		if (!tickets.isEmpty())
 		{
-			if (!tickets.isEmpty())
-			{
-				return tickets.get(tickets.size() - 1);
-			}
+			return tickets.get(tickets.size() - 1);
 		}
 		
 		return null;		
+	}
+	
+	public Ticket findLastTicket(User user)
+	{
+		if (user != null)
+		{
+			for (int index = tickets.size(); index > 0;)
+			{
+				Ticket ticket = tickets.get(--index);
+				if (user.equals(ticket.getOwner()))
+				{
+					return ticket;
+				}
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -141,14 +159,12 @@ public class Session extends AbstractEntity<Session>
 		return null;
 	}
 	
+	@JsonView (JsonViews.SessionToTicket.class)
 	public Ticket getLastDrewTicket()
 	{
-		if (isOpen())
+		if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
 		{
-			if (currentTicketIndex > -1 && currentTicketIndex < tickets.size())
-			{
-				return tickets.get(currentTicketIndex);
-			}
+			return tickets.get(currentTicketIndex);
 		}
 		
 		return null;		
@@ -193,6 +209,7 @@ public class Session extends AbstractEntity<Session>
 		this.endTime = endTime;
 	}
 
+	@JsonView (JsonViews.SessionToTicket.class)
 	public List<Ticket> getTickets()
 	{
 		return tickets;
@@ -238,4 +255,5 @@ public class Session extends AbstractEntity<Session>
 		}
 		return LocalDateTime.now();
 	}
+
 }

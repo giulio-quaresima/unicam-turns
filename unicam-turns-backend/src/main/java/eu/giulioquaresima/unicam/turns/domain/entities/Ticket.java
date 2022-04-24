@@ -9,6 +9,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
+
 @Entity
 public class Ticket extends AbstractEntity<Ticket>
 {
@@ -48,6 +52,55 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.withdrawTime = withrawTime;
 		this.owner = owner;
 	}
+	
+	/**
+	 * @return <code>true</code> iff {@link Session#isOpen()}. 
+	 */
+	public boolean isAlive()
+	{
+		return session != null && session.isOpen();
+	}
+	
+	/**
+	 * @return <code>true</code> iff {@link Session#isOpen()}
+	 * and this ticket has not yet been drew.
+	 */
+	public boolean isWaiting()
+	{
+		if (isAlive())
+		{
+			Ticket lastDrewTicket = session.getLastDrewTicket();
+			return lastDrewTicket == null || lastDrewTicket.getNumber() < getNumber();
+		}
+		return false;
+	}
+
+	/**
+	 * @return <code>true</code> iff {@link Session#isOpen()}
+	 * and this ticket has expired, i.e. the current drew number
+	 * is after this number.
+	 */
+	public boolean isExpired()
+	{
+		if (isAlive())
+		{
+			Ticket lastDrewTicket = session.getLastDrewTicket();
+			return lastDrewTicket != null && lastDrewTicket.getNumber() > getNumber();
+		}
+		return false;
+	}
+	
+	/**
+	 * @return <code>true</code> if this number has been just called: hurry up!
+	 */
+	public boolean isCurrent()
+	{
+		if (isAlive())
+		{
+			return equals(session.getLastDrewTicket());
+		}
+		return false;
+	}
 
 	public int getNumber()
 	{
@@ -57,6 +110,7 @@ public class Ticket extends AbstractEntity<Ticket>
 	{
 		this.number = number;
 	}
+	
 	/**
 	 * This is the ticket number that can be showed to users,
 	 * and depends from {@link #getNumber()}.
@@ -85,6 +139,16 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setWithdrawTime(LocalDateTime withdrawTime)
 	{
 		this.withdrawTime = withdrawTime;
+	}
+	
+	@JsonView (JsonViews.TicketToSession.class)
+	public Session getSession()
+	{
+		return session;
+	}
+	public void setSession(Session session)
+	{
+		this.session = session;
 	}
 	
 	public User getOwner()

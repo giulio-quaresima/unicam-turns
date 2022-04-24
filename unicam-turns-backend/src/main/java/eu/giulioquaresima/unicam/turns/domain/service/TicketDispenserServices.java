@@ -5,6 +5,7 @@ import java.util.List;
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
+import eu.giulioquaresima.unicam.turns.domain.entities.User;
 
 /**
  * 
@@ -61,19 +62,29 @@ public interface TicketDispenserServices
 	 * 
 	 * @param ticketDispenser
 	 * 
-	 * @return The next ticket, <code>null</code> if there is no active session,
+	 * @return The next ticket, <code>null</code> if there is no open session,
 	 * or if there are no more withdrew ticket in the dispenser.
 	 */
 	Ticket draw(TicketDispenser ticketDispenser);
 	
 	/**
-	 * Get the current ticket of the currently active session, if any.
+	 * Withdraw the next ticket of the currently active session, if any.
 	 * 
 	 * @param ticketDispenser
 	 * 
-	 * @return The current ticket, <code>null</code> if there is no active session,
-	 * or if no ticket has drawn yet.
+	 * @return The next ticket, <code>null</code> if there is no open session.
 	 */
-	Ticket current(TicketDispenser ticketDispenser);
+	Ticket withdraw(TicketDispenser ticketDispenser);
+	
+	/**
+	 * Find the current {@link User}'s ticket in the open session
+	 * of the dispenser, if any.
+	 * 
+	 * @param ticketDispenser
+	 * 
+	 * @return The last ticket of the current user, or <code>null</code>
+	 * if there is no open session or the current user hasn't withdraw any ticket yet.
+	 */
+	Ticket myCurrentTicket(TicketDispenser ticketDispenser);
 	
 }
