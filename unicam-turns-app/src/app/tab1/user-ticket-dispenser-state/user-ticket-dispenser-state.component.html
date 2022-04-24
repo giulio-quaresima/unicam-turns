@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button (click)="close()"></ion-back-button>
+      </ion-buttons>
+      <ion-title>
+        {{userTicketDispenserState?.ticketDispenser?.label}}
+        <span *ngI></span>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content [fullscreen]="true">
+
+    <ion-card *ngIf="userTicketDispenserState?.currentUserAliveTicket">
+      <qrcode [qrdata]="userTicketDispenserState.currentUserAliveTicket?.uniqueIdentifier" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+      <ion-card-header>
+        <ion-card-subtitle>Ticket</ion-card-subtitle>
+        <ion-card-title>#{{userTicketDispenserState.currentUserAliveTicket?.publicNumber}}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+      </ion-card-content>
+    </ion-card>
+  
+    <section style="margin: 1em;">
+      <ion-button (click)="withdraw()" *ngIf="userTicketDispenserState?.withdrawable" size="large" expand="block" color="success">
+        <ion-icon name="download-outline" aria-label="Stacca il biglietto"></ion-icon>
+      </ion-button>
+    </section>
+  
+  </ion-content>
+  

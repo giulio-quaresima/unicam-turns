@@ -1,7 +1,8 @@
 package eu.giulioquaresima.unicam.turns.domain.service;
 
+import java.util.List;
+
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
-import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 
 /**
  * 
@@ -11,13 +12,9 @@ import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 public interface TicketServices
 {
 	/**
-	 * Withdraw a new ticket from the currently active session
-	 * of the dispenser, if any.
-	 * 
-	 * @param ticketDispenser
-	 * 
-	 * @return the new ticket, or <code>null</code> if there
-	 * is no currently active session.
+	 * @return The list of {@link Ticket#isAlive()} tickets
+	 * of the current user, ordered by {@link Ticket#getWithdrawTime()},
+	 * reversed.
 	 */
-	Ticket withdraw(TicketDispenser ticketDispenser);
+	List<Ticket> currentUserTickets();
 }

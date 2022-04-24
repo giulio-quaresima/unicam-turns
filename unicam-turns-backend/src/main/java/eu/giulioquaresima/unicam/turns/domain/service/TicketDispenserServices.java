@@ -85,6 +85,6 @@ public interface TicketDispenserServices
 	 * @return The last ticket of the current user, or <code>null</code>
 	 * if there is no open session or the current user hasn't withdraw any ticket yet.
 	 */
-	Ticket myCurrentTicket(TicketDispenser ticketDispenser);
+	Ticket currentUserTicket(TicketDispenser ticketDispenser);
 	
 }

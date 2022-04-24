@@ -10,7 +10,12 @@ import javax.persistence.Version;
 
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
+
 @MappedSuperclass
+@JsonView (JsonViews.Default.class)
 public abstract class AbstractEntity<E extends AbstractEntity<E>> implements Comparable<E>
 {	
 	@Id

@@ -15,6 +15,9 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.SortNatural;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 /**
  * The virtual owner of one ore more ticket dispensers: one or more real people can act impersonating
@@ -24,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
+@JsonView (JsonViews.Default.class)
 public class Owner extends AbstractEntity<Owner>
 {
 	public static final Comparator<Owner> NAME_COMPARATOR =

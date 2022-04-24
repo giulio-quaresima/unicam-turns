@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Session;
+import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.service.TicketDispenserServices;
 import eu.giulioquaresima.unicam.turns.rest.Response;
@@ -49,7 +50,6 @@ public class OwnerController
 	}
 	
 	@PostMapping ("/ticketDispensers")
-	@PreAuthorize ("hasPermission('C')")
 	public ResponseEntity<Response<TicketDispenser>> createDispenser(
 			ZoneId zoneId,
 			@Valid @RequestBody TicketDispenser ticketDispenser,
@@ -70,7 +70,6 @@ public class OwnerController
 	}
 	
 	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}")
-	@PreAuthorize ("hasPermission('R')")
 	public ResponseEntity<Response<TicketDispenser>> dispenser(@PathVariable TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser");
@@ -78,7 +77,6 @@ public class OwnerController
 	}
 	
 	@GetMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/last")
-	@PreAuthorize ("hasPermission('U')")
 	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> currentSession(@PathVariable TicketDispenser ticketDispenser)
 	{
@@ -87,7 +85,6 @@ public class OwnerController
 	}
 	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/start")
-	@PreAuthorize ("hasPermission('U')")
 	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> startSession(@PathVariable TicketDispenser ticketDispenser, ZoneId zoneId)
 	{
@@ -95,8 +92,25 @@ public class OwnerController
 		return Response.ok(ticketDispenserServices.start(ticketDispenser));
 	}
 	
+	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/draw")
+	@JsonView (JsonViews.SessionToTicket.class)
+	public ResponseEntity<Response<Session>> drawTicket(@PathVariable TicketDispenser ticketDispenser, ZoneId zoneId)
+	{
+		Assert.notNull(ticketDispenser, "ticketDispenser");
+		Ticket ticket = ticketDispenserServices.draw(ticketDispenser);
+		if (ticket != null)
+		{
+			return Response.ok(ticket.getSession());
+		}
+		Session session = ticketDispenser.getCurrentSession();
+		if (session == null)
+		{
+			return Response.ko(session, HttpStatus.NOT_FOUND, "No active session");
+		}
+		return Response.ok(session);
+	}
+	
 	@PutMapping ("/ticketDispensers/{ticketDispenser:\\d+}/sessions/end")
-	@PreAuthorize ("hasPermission('U')")
 	@JsonView (JsonViews.SessionToTicket.class)
 	public ResponseEntity<Response<Session>> endSession(@PathVariable TicketDispenser ticketDispenser)
 	{

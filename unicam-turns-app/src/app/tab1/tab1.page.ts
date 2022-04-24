@@ -1,21 +1,46 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Ticket } from '../domain/ticket';
-import { Api } from '../service/api';
+import { UserApi } from '../service/user-api';
 
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss']
 })
-export class Tab1Page {
+export class Tab1Page implements OnInit {
 
-  public ticket : Ticket = {} as Ticket;
+  public tickets : Ticket[] = [];
+  public openingDispenserId
 
-  constructor(public api : Api) {}
+  constructor(
+    public userApi : UserApi,
+    private router : Router,
+    private activatedRoute : ActivatedRoute
+    ) {}
 
-  public withraw() : void {
-    this.api.whoami();
-    // this.api.withraw(1).then(t => this.ticket = t); // FIXME id hard-coded
+  ngOnInit(): void {
+    this.reloadList();
+  }
+
+  /**
+   * @see https://ionicframework.com/docs/angular/lifecycle
+   */
+   ionViewWillEnter() : void {
+    this.ngOnInit();
+  }  
+
+  reloadList() {
+    this.userApi.currentUserTickets().then(response => this.tickets = response.payload);
+  }
+
+  openDispenserDetailBy(id : number) {
+    this.router.navigate(['dispenser/' + id], {relativeTo : this.activatedRoute});
+  }
+
+  openDispenserDetail() {
+    this.openDispenserDetailBy(this.openingDispenserId);
+    this.openingDispenserId = null;
   }
 
 }

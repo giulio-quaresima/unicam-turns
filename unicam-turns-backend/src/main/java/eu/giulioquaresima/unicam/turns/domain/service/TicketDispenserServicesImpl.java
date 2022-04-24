@@ -170,7 +170,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 
 	@Override
-	public Ticket myCurrentTicket(TicketDispenser ticketDispenser)
+	public Ticket currentUserTicket(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
 
@@ -178,9 +178,9 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 		if (user != null)
 		{
 			Session session = getCurrentSession(ticketDispenser);
-			if (session != null) // Non controllo se è aperta, tanto l'utente sa se è chiusa, ma vuole sapere comunque qual era il suo biglietto!
+			if (session != null)
 			{
-				return session.findLastTicket(user);
+				return session.findLastTicket(user, false);
 			}
 		}
 		

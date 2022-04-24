@@ -4,6 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
+
 /**
  * A simple REST response object 
  * inspired by https://stackoverflow.com/q/12806386/853544 
@@ -12,6 +16,7 @@ import org.springframework.lang.Nullable;
  * 
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
+@JsonView (JsonViews.Default.class)
 public class Response<P>
 {
 	private P payload;

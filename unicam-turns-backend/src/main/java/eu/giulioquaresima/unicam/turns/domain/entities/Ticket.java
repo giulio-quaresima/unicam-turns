@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 @Entity
+@JsonView (JsonViews.Default.class)
 public class Ticket extends AbstractEntity<Ticket>
 {
 	@ManyToOne (optional = false)
@@ -31,6 +32,10 @@ public class Ticket extends AbstractEntity<Ticket>
 	@NotNull
 	@Column (nullable = false)
 	private LocalDateTime withdrawTime;
+	
+	@NotNull
+	@Column (nullable = false)
+	private boolean cancelled = false;
 	
 	@ManyToOne (optional = true)
 	private User owner;
@@ -54,15 +59,16 @@ public class Ticket extends AbstractEntity<Ticket>
 	}
 	
 	/**
-	 * @return <code>true</code> iff {@link Session#isOpen()}. 
+	 * @return <code>true</code> iff !{@link #isCancelled()} and 
+	 * {@link Session#isOpen()}. 
 	 */
 	public boolean isAlive()
 	{
-		return session != null && session.isOpen();
+		return !isCancelled() && session != null && session.isOpen();
 	}
 	
 	/**
-	 * @return <code>true</code> iff {@link Session#isOpen()}
+	 * @return <code>true</code> iff {@link #isAlive()}
 	 * and this ticket has not yet been drew.
 	 */
 	public boolean isWaiting()
@@ -76,21 +82,6 @@ public class Ticket extends AbstractEntity<Ticket>
 	}
 
 	/**
-	 * @return <code>true</code> iff {@link Session#isOpen()}
-	 * and this ticket has expired, i.e. the current drew number
-	 * is after this number.
-	 */
-	public boolean isExpired()
-	{
-		if (isAlive())
-		{
-			Ticket lastDrewTicket = session.getLastDrewTicket();
-			return lastDrewTicket != null && lastDrewTicket.getNumber() > getNumber();
-		}
-		return false;
-	}
-	
-	/**
 	 * @return <code>true</code> if this number has been just called: hurry up!
 	 */
 	public boolean isCurrent()
@@ -102,13 +93,19 @@ public class Ticket extends AbstractEntity<Ticket>
 		return false;
 	}
 
-	public int getNumber()
+	/**
+	 * @return <code>true</code> iff {@link #isAlive()}
+	 * and this ticket has expired, i.e. the current drew number
+	 * is after this number.
+	 */
+	public boolean isExpired()
 	{
-		return number;
-	}
-	public void setNumber(int number)
-	{
-		this.number = number;
+		if (isAlive())
+		{
+			Ticket lastDrewTicket = session.getLastDrewTicket();
+			return lastDrewTicket != null && lastDrewTicket.getNumber() > getNumber();
+		}
+		return false;
 	}
 	
 	/**
@@ -131,6 +128,15 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.uniqueIdentifier = uniqueIdentifier;
 	}
 	
+	public int getNumber()
+	{
+		return number;
+	}
+	public void setNumber(int number)
+	{
+		this.number = number;
+	}
+	
 	@NotNull
 	public LocalDateTime getWithdrawTime()
 	{
@@ -139,6 +145,19 @@ public class Ticket extends AbstractEntity<Ticket>
 	public void setWithdrawTime(LocalDateTime withdrawTime)
 	{
 		this.withdrawTime = withdrawTime;
+	}
+	
+	public boolean isCancelled()
+	{
+		return cancelled;
+	}
+	public void setCancelled(boolean cancelled)
+	{
+		this.cancelled = cancelled;
+	}
+	public void cancel()
+	{
+		setCancelled(true);
 	}
 	
 	@JsonView (JsonViews.TicketToSession.class)

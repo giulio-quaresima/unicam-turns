@@ -18,8 +18,10 @@ import org.hibernate.annotations.SortNatural;
 import org.springframework.lang.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.converters.ZoneIdConverter;
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 /**
  * This entity identifies a virtual dispenser of digital tickets.
@@ -27,6 +29,7 @@ import eu.giulioquaresima.unicam.turns.domain.entities.converters.ZoneIdConverte
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
+@JsonView (JsonViews.Default.class)
 public class TicketDispenser extends AbstractEntity<TicketDispenser>
 {
 	@NotNull
@@ -84,6 +87,7 @@ public class TicketDispenser extends AbstractEntity<TicketDispenser>
 		}
 		return null;
 	}
+	
 	@Nullable
 	@JsonIgnore
 	public Session getCurrentSession()

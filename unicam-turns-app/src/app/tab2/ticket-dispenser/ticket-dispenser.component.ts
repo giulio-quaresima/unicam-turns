@@ -22,7 +22,6 @@ export class TicketDispenserComponent implements OnInit {
 
   ngOnInit() {
     let dispenserId : number = parseInt(this.activatedRoute.snapshot.paramMap.get("dispenserId"));
-    console.log("asgfassgasdgasdgd" + dispenserId);
     this.ownerApi.dispenser(dispenserId).then(response => this.ticketDispenser = response.payload);
     this.ownerApi.lastSession(dispenserId).then(response => this.currentSession = response.payload);
   }
@@ -31,17 +30,12 @@ export class TicketDispenserComponent implements OnInit {
     return !!this.currentSession && this.currentSession.open;
   }
 
-  ticketsToDraw() : number {
-    if (this.sessionStarted()) {
-      if (!!this.currentSession.lastWithdrewTicket && !!this.currentSession.lastDrewTicket) {
-        return this.currentSession.lastWithdrewTicket.publicNumber - this.currentSession.lastDrewTicket.publicNumber;
-      }
-    }
-    return 0;
-  }
-
   startSession() {
     this.ownerApi.startSession(this.ticketDispenser.id).then(response => {this.currentSession = response.payload; console.log(this.currentSession)});
+  }
+
+  drawTicket() {
+    this.ownerApi.drawTicket(this.ticketDispenser.id).then(response => {this.currentSession = response.payload; console.log(this.currentSession)});
   }
 
   endSession() {

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 @Entity
+@JsonView (JsonViews.Default.class)
 public class Session extends AbstractEntity<Session>
 {
 	public static final Comparator<Session> START_END_TIME_COMPARATOR =
@@ -85,7 +86,8 @@ public class Session extends AbstractEntity<Session>
 	}
 	
 	/**
-	 * Withdraw a ticket now.
+	 * Withdraw a ticket now:
+	 * this method should be called within a transaction!.
 	 * 
 	 * @return A valid ticket if the session {@link #isOpenNow(Clock)},
 	 * otherwise <code>null</code>. 
@@ -94,6 +96,14 @@ public class Session extends AbstractEntity<Session>
 	{
 		if (isOpen())
 		{
+			if (owner != null)
+			{
+				Ticket lastTicket = findLastTicket(owner, false);
+				if (lastTicket != null)
+				{
+					lastTicket.cancel();
+				}
+			}
 			Ticket ticket = new Ticket(this, tickets.size(), UUID.randomUUID(), now(), owner);
 			tickets.add(ticket);
 			return ticket;
@@ -103,7 +113,8 @@ public class Session extends AbstractEntity<Session>
 	}
 	
 	/**
-	 * Withdraw anonymously a ticket now.
+	 * Withdraw anonymously a ticket now:
+	 * this method should be called within a transaction!.
 	 * 
 	 * @return
 	 */
@@ -123,16 +134,19 @@ public class Session extends AbstractEntity<Session>
 		return null;		
 	}
 	
-	public Ticket findLastTicket(User user)
+	public Ticket findLastTicket(User user, boolean includeCancelled)
 	{
 		if (user != null)
 		{
 			for (int index = tickets.size(); index > 0;)
 			{
 				Ticket ticket = tickets.get(--index);
-				if (user.equals(ticket.getOwner()))
+				if (includeCancelled || !ticket.isCancelled())
 				{
-					return ticket;
+					if (user.equals(ticket.getOwner()))
+					{
+						return ticket;
+					}
 				}
 			}
 		}
@@ -140,7 +154,8 @@ public class Session extends AbstractEntity<Session>
 	}
 	
 	/**
-	 * Draw the next ticket, if there are still any not drawn.
+	 * Draw the next ticket, if there are still any not drawn:
+	 * this method should be called within a transaction!
 	 * 
 	 * @return The next ticket or <code>null</code> if tickets are finished or
 	 * the session is closed.
@@ -149,10 +164,15 @@ public class Session extends AbstractEntity<Session>
 	{
 		if (isOpen())
 		{
-			int nextIndex = currentTicketIndex + 1;
-			if (nextIndex < tickets.size())
+			int nextIndex = currentTicketIndex;
+			while (++nextIndex < tickets.size())
 			{
-				return tickets.get(currentTicketIndex = nextIndex);
+				Ticket ticket = tickets.get(currentTicketIndex = nextIndex);
+				if (!ticket.isCancelled())
+				{
+					currentTicketIndex = nextIndex;
+					return ticket;
+				}
 			}
 		}
 		
@@ -168,6 +188,19 @@ public class Session extends AbstractEntity<Session>
 		}
 		
 		return null;		
+	}
+	
+	public int getRemainingTicketsCount()
+	{
+		int count = 0;
+		for (int index = currentTicketIndex + 1; index < tickets.size(); index++)
+		{
+			if (! tickets.get(index).isCancelled())
+			{
+				count++;
+			}
+		}
+		return count;
 	}
 	
 	@Override

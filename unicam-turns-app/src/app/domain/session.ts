@@ -8,4 +8,5 @@ export class Session {
     ticketDispenser : TicketDispenser;
     lastWithdrewTicket : Ticket;
     lastDrewTicket : Ticket;
+    remainingTicketsCount : number;
 }

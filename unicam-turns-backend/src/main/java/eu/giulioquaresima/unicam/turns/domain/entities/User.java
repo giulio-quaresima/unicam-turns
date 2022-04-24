@@ -16,6 +16,9 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.NaturalId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
 
 /**
  * 
@@ -23,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
+@JsonView (JsonViews.Default.class)
 public class User extends AbstractEntity<User>
 {
 	@NotNull

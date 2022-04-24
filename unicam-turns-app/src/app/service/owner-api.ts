@@ -69,6 +69,16 @@ export class OwnerApi {
         });
     }
 
+    async drawTicket(dispenserId : number) : Promise<Response<Session>> {
+        return this.rest.put({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/draw"}).then(response => {
+            let data : Response<Session> = response.data;
+            if (!data.success) {
+                console.log(data.error.message);
+            }
+            return data;
+        });
+    }
+
     async endSession(dispenserId : number) : Promise<Response<Session>> {
         return this.rest.put({url : "/owner/ticketDispensers/" + dispenserId + "/sessions/end"}).then(response => {
             let data : Response<Session> = response.data;
