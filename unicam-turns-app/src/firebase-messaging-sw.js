@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging-compat.js');
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
