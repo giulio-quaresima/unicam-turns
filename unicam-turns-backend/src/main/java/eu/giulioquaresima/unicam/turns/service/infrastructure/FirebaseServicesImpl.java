@@ -17,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.WebpushConfig;
+import com.google.firebase.messaging.WebpushFcmOptions;
 import com.google.firebase.messaging.WebpushNotification;
 
 @Service
@@ -79,10 +80,16 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 //		    .putData("score", "850")
 //		    .putData("time", "2:45")
 		    .setToken(registrationToken)
-//		    .setNotification(Notification.builder().setTitle("PROVA").setBody("Ciao ciao!").build())
-		    .setWebpushConfig(WebpushConfig.builder().setNotification(
-		    		WebpushNotification.builder().setTitle("PROVA").setBody("Ciao ciao!").build()
-		    		).build())
+		    .setNotification(Notification.builder().setTitle("PROVA").setBody("Ciao ciao!").build())
+		    .setWebpushConfig(WebpushConfig.builder()
+//		    		.setNotification(WebpushNotification.builder()
+//		    			.setTitle("PROVA")
+//		    			.setBody("Ciao ciao!")
+//		    			.build()
+//		    		)
+		    		.setFcmOptions(WebpushFcmOptions.builder()
+		    				.setLink("https://main.dr0qfekcvr13w.amplifyapp.com/tabs/tab2").build())
+		    		.build())
 		    .build();
 
 		// Send a message to the device corresponding to the provided
