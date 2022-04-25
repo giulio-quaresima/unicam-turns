@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Ticket } from '../domain/ticket';
+import { Firebase } from '../service/firebase';
 import { UserApi } from '../service/user-api';
 
 @Component({
@@ -16,7 +17,8 @@ export class Tab1Page implements OnInit {
   constructor(
     public userApi : UserApi,
     private router : Router,
-    private activatedRoute : ActivatedRoute
+    private activatedRoute : ActivatedRoute,
+    private firebase : Firebase
     ) {}
 
   ngOnInit(): void {
@@ -28,6 +30,7 @@ export class Tab1Page implements OnInit {
    */
    ionViewWillEnter() : void {
     this.ngOnInit();
+    this.firebase.sendTokenToBackend();
   }  
 
   reloadList() {

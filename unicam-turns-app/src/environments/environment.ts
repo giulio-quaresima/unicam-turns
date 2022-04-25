@@ -12,6 +12,21 @@ export const environment = {
   },
   oauthConfig: {
     issuer: "http://unicam-turns-authorization-server:9000"
+  },
+  firebase : {
+    apiKey: "AIzaSyAVZKYOx5VLbeWrGj0I6q2TxTE0sNTaXfQ",
+    authDomain: "unicam-turns-app.firebaseapp.com",
+    projectId: "unicam-turns-app",
+    storageBucket: "unicam-turns-app.appspot.com",
+    messagingSenderId: "95967144560",
+    appId: "1:95967144560:web:659f83a346b7c285afa2b5",
+    measurementId: "G-086RJ9HYC2",
+    /**
+     * Voluntary Application Server Identification for Web Push
+     * VAPID
+     * https://datatracker.ietf.org/doc/html/draft-thomson-webpush-vapid
+     */
+    vapidPublicKey: "BEJ2Pbkm1r6U3WJnzClQvkRbBZ3vjAgjc7EoCQ1isZjBubU3B55IqFEr0Hq0FhIFf5invYkmRhHfqvME_T560k8"
   }
 };
 
