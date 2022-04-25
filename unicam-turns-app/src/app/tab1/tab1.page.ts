@@ -22,15 +22,15 @@ export class Tab1Page implements OnInit {
     ) {}
 
   ngOnInit(): void {
-    this.reloadList();
+    this.firebase.sendTokenToBackend();
+    this.ionViewWillEnter();
   }
-
+  
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
-   ionViewWillEnter() : void {
-    this.ngOnInit();
-    this.firebase.sendTokenToBackend();
+  ionViewWillEnter() : void {
+    this.reloadList();
   }  
 
   reloadList() {

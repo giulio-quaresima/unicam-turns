@@ -10,19 +10,15 @@ const messaging = getMessaging(firebaseApp);
 @Injectable({ providedIn: 'root' })
 export class Firebase {
 
-    constructor() {
-        console.log("Vasddfgalsdjfgjasdlgajsdgasdf ", firebaseApp);
-        onMessage(messaging, (payload) => {
-            console.log('Message received. ', payload);
-        });          
-    }
-
     sendTokenToBackend() { 
         getToken(messaging, {vapidKey : environment.firebase.vapidPublicKey})
             .then(currentToken => {
                 if (currentToken) {
                     console.log("Ecco il token!!!", currentToken);
-                    // TODO Send to backend
+                    console.log("Ora inizializzo il listener dei messaggi");
+                    onMessage(messaging, (payload) => {
+                        console.log('Message received. ', payload);
+                    }); 
                 } else {
                     console.log("No registration token available. Request permission to generate one.");
                 }
