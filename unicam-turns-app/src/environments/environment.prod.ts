@@ -11,7 +11,7 @@ export const environment = {
     url: "https://unicam-turns-backend.giulioquaresima.eu"
   },
   oauthConfig: {
-    issuer: "unicam-turns-authorization-server.giulioquaresima.eu"
+    issuer: "https://unicam-turns-authorization-server.giulioquaresima.eu/login"
   },
   firebase : {
     apiKey: "AIzaSyAVZKYOx5VLbeWrGj0I6q2TxTE0sNTaXfQ",
