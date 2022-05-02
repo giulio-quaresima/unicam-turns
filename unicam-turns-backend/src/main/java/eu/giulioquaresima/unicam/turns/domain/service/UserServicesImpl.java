@@ -8,8 +8,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
+import eu.giulioquaresima.unicam.turns.domain.entities.FirebaseToken;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
+import eu.giulioquaresima.unicam.turns.repository.FirebaseTokenRepository;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 
 /**
@@ -22,6 +25,9 @@ public class UserServicesImpl implements UserServices
 {
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private FirebaseTokenRepository firebaseTokenRepository;
 
 	@Override
 	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
@@ -41,6 +47,32 @@ public class UserServicesImpl implements UserServices
 				user.setUsername(authentication.getName());
 				return userRepository.save(user);
 			}
+		}
+		return null;
+	}
+
+	@Override
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
+	public FirebaseToken assignTokenToCurrentUser(String token)
+	{
+		Assert.hasText(token, "Un token vuoto che token è?");
+		
+		User user = getCurrentUser(true);
+		if (user != null)
+		{
+			Optional<FirebaseToken> optional = firebaseTokenRepository.findOneByToken(token);
+			if (optional.isPresent())
+			{
+				optional.get().setUser(user);
+			}
+			else
+			{
+				FirebaseToken firebaseToken = new FirebaseToken();
+				firebaseToken.setToken(token);
+				firebaseToken.setUser(user);
+				optional = Optional.of(firebaseToken);
+			}
+			return firebaseTokenRepository.save(optional.get());
 		}
 		return null;
 	}

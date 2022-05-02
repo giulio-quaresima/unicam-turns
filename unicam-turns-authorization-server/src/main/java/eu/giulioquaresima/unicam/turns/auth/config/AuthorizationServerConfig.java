@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -40,6 +41,15 @@ public class AuthorizationServerConfig
 	@Autowired
 	private CertificatesLocator certificatesLocator;
 	
+	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.clients.unicam-turns-app.client-id:unicam-turns-app}")
+	private String clientId;
+	
+	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.clients.unicam-turns-app.redirect-uri:http://unicam-turns-app:8100}")
+	private String redirectUri;
+	
+	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.server.issuer-url:http://unicam-turns-authorization-server:9000}")
+	private String issuerUrl;
+	
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity http) throws Exception 
@@ -57,12 +67,12 @@ public class AuthorizationServerConfig
     {
     	// https://docs.spring.io/spring-security/site/docs/5.2.12.RELEASE/reference/html/oauth2.html#oauth2login-boot-property-mappings
     	RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-    		.clientId("unicam-turns-app")
+    		.clientId(clientId)
     		.clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE, no client authentication
     		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 //    		.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
 //    		.redirectUri("https://oidcdebugger.com/debug")
-    		.redirectUri("http://unicam-turns-app:8100")
+    		.redirectUri(redirectUri)
     		.scope(OidcScopes.OPENID)
     		.scope(OidcScopes.PROFILE)
     		.scope(OidcScopes.EMAIL)
@@ -86,7 +96,7 @@ public class AuthorizationServerConfig
     @Bean
     public ProviderSettings providerSettings() {
         return ProviderSettings.builder()
-          .issuer("http://unicam-turns-authorization-server:9000")
+          .issuer(issuerUrl)
           .build();
     }
     

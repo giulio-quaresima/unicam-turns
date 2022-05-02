@@ -41,7 +41,9 @@ public class DefaultSecurityConfig
 	{
 		http
 			.authorizeRequests(authorizeRequests ->
-				authorizeRequests.anyRequest().authenticated()
+				authorizeRequests
+					.antMatchers("/favicon.*").permitAll()
+					.anyRequest().authenticated()
 			)
 			.formLogin(withDefaults());
 		return http.build();

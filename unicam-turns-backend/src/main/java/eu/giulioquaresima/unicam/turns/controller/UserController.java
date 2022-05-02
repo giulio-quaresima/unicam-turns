@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import eu.giulioquaresima.unicam.turns.domain.entities.FirebaseToken;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.service.TicketDispenserServices;
 import eu.giulioquaresima.unicam.turns.domain.service.TicketServices;
+import eu.giulioquaresima.unicam.turns.domain.service.UserServices;
 import eu.giulioquaresima.unicam.turns.rest.Response;
 import eu.giulioquaresima.unicam.turns.rest.UserTicketDispenserState;
 import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
@@ -39,6 +41,9 @@ public class UserController
 	
 	@Autowired
 	private TicketDispenserServices ticketDispenserServices;
+	
+	@Autowired
+	private UserServices userServices;
 	
 	@GetMapping ("/tickets")
 	@JsonView (JsonViews.TicketToSession.class)
@@ -62,6 +67,12 @@ public class UserController
 	{
 		Ticket ticket = ticketDispenserServices.withdraw(ticketDispenser);
 		return theFormerOrTheLatter(ticket, ticketDispenser);
+	}
+	
+	@PutMapping ("/firebase/tokens/{token}")
+	public ResponseEntity<Response<FirebaseToken>> saveFirebaseToken(@PathVariable ("token") String token)
+	{
+		return Response.ok(userServices.assignTokenToCurrentUser(token));
 	}
 	
 	private ResponseEntity<Response<UserTicketDispenserState>> theFormerOrTheLatter(Ticket ticket, TicketDispenser ticketDispenser)

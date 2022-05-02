@@ -1,11 +1,14 @@
 // This api will come in the next version
 
 import { AuthConfig } from 'angular-oauth2-oidc';
+import { environment } from 'src/environments/environment';
 
 export const authConfig: AuthConfig = {
   // Url of the Identity Provider
-  issuer: 'http://unicam-turns-authorization-server:9000',
+  issuer: environment.oauthConfig.issuer,
   // issuer: 'https://demo.c2id.com',
+
+  logoutUrl: environment.oauthConfig.issuer + "/logout",
 
   requireHttps: false,
 

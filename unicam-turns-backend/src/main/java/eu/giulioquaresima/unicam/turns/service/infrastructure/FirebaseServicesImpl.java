@@ -4,7 +4,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,17 +16,25 @@ import org.springframework.util.StringUtils;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.SendResponse;
 import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.WebpushFcmOptions;
-import com.google.firebase.messaging.WebpushNotification;
+
+import eu.giulioquaresima.unicam.turns.domain.entities.FirebaseToken;
+import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
+import eu.giulioquaresima.unicam.turns.domain.entities.User;
 
 @Service
 public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 {
+	private final static Logger LOGGER = LoggerFactory.getLogger(FirebaseServicesImpl.class);
+	
 	private FirebaseApp firebaseApp = null;
 
 	@Override
@@ -42,6 +54,63 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 		}
 	}
 	
+	@Override
+	public boolean yourTicketCalled(Ticket ticket) throws FirebaseMessagingException
+	{
+		if (ticket != null)
+		{
+			User owner = ticket.getOwner();
+			if (owner != null)
+			{
+				Collection<FirebaseToken> firebaseTokens = owner.getFirebaseTokens();
+				if (!firebaseTokens.isEmpty())
+				{
+					MulticastMessage multicastMessage = 
+							MulticastMessage
+							.builder()
+							.addAllTokens(firebaseTokens.stream().map(FirebaseToken::getToken).collect(Collectors.toSet()))
+							.setNotification(Notification
+									.builder()
+									.setTitle("Il suo ticket è stato appena chiamato!")
+									.setBody(String.format(""
+											+ "Il suo ticket n. %d "
+											+ "prelevato presso il distributore %s "
+											+ "è stato appena chiamato.", 
+											ticket.getPublicNumber(),
+											ticket.getSession().getTicketDispenser().getLabel()))
+									.build()
+									)
+							.setWebpushConfig(WebpushConfig
+									.builder()
+									.setFcmOptions(WebpushFcmOptions
+											.builder()
+											.setLink("https://main.dr0qfekcvr13w.amplifyapp.com/tabs/tab2") // Per ora orribilmente hard-coded, me ne faccio una ragione, ho fretta!!!
+											.build())
+									.build())
+							.build();
+					
+					BatchResponse batchResponse = FirebaseMessaging.getInstance(firebaseApp).sendMulticast(multicastMessage);
+					
+					for (SendResponse sendResponse : batchResponse.getResponses())
+					{
+						if (sendResponse.isSuccessful())
+						{
+							LOGGER.info("Successfully send push with id {}", sendResponse.getMessageId());
+						}
+						else
+						{
+							LOGGER.error("Firebase error", sendResponse.getException());
+						}
+					}
+					
+					return batchResponse.getFailureCount() == 0;
+				}
+			}
+		}
+		
+		return false;
+	}
+
 	protected Path serviceAccountKey()
 	{
 		Path path = null;

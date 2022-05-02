@@ -22,8 +22,10 @@ export class Tab1Page implements OnInit {
     ) {}
 
   ngOnInit(): void {
-    this.firebase.sendTokenToBackend();
     this.ionViewWillEnter();
+    if (this.firebase.supported) {
+      this.firebase.sendTokenToBackend();
+    }
   }
   
   /**

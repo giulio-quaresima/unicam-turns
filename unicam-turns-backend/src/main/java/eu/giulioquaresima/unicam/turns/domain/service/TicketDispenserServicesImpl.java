@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,11 +22,14 @@ import eu.giulioquaresima.unicam.turns.repository.SessionRepository;
 import eu.giulioquaresima.unicam.turns.repository.TicketDispenserRepository;
 import eu.giulioquaresima.unicam.turns.repository.TicketRepository;
 import eu.giulioquaresima.unicam.turns.repository.UserRepository;
+import eu.giulioquaresima.unicam.turns.service.infrastructure.FirebaseServices;
 
 @Service
 @Transactional (readOnly = true, propagation = Propagation.SUPPORTS)
 public class TicketDispenserServicesImpl implements TicketDispenserServices
 {
+	private final static Logger LOGGER = LoggerFactory.getLogger(TicketDispenserServicesImpl.class);
+	
 	@Autowired
 	private TicketDispenserRepository ticketDispenserRepository;
 	
@@ -42,6 +47,9 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	
 	@Autowired
 	private UserServices userServices;
+	
+	@Autowired
+	private FirebaseServices firebaseServices;
 	
 	@Override
 	public List<TicketDispenser> listOwnDispensers()
@@ -146,6 +154,16 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 		{
 			Ticket ticket = session.draw();
 			session = sessionRepository.save(session);
+			
+			try
+			{
+				
+			}
+			catch (Exception e) 
+			{
+				LOGGER.error("Errore nel tentativo di push notification", e);
+			}
+			
 			return ticket;
 		}
 		

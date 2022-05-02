@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-tabs',
@@ -7,6 +8,18 @@ import { Component } from '@angular/core';
 })
 export class TabsPage {
 
-  constructor() {}
+  constructor(public oauthService : OAuthService) {
+  }
+
+  get authenticated() {
+    return this.oauthService.hasValidAccessToken();
+  }
+
+  logout() {
+    // this.oauthService.revokeTokenAndLogout(); // Currently not supported by my auth server (missing revocation_endpoint)
+    this.oauthService.logOut(false);
+    this.oauthService.tryLogin();
+    // this.oauthService.postLogoutRedirectUri
+  }
 
 }

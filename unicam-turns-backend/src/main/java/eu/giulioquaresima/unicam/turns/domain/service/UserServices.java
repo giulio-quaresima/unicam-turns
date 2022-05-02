@@ -1,5 +1,6 @@
 package eu.giulioquaresima.unicam.turns.domain.service;
 
+import eu.giulioquaresima.unicam.turns.domain.entities.FirebaseToken;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
 
 /**
@@ -22,4 +23,6 @@ public interface UserServices
 	 * and {@code createIfAbsent} is false.
 	 */
 	User getCurrentUser(boolean createIfAbsent);
+	
+	FirebaseToken assignTokenToCurrentUser(String token);
 }

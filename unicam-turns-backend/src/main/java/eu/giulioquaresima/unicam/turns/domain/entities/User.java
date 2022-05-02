@@ -10,6 +10,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
@@ -26,6 +27,7 @@ import eu.giulioquaresima.unicam.turns.rest.json.JsonViews;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Entity
+@Table (name = "you_sir") // USER is a reserved word for some DBMS like PostgreSQL
 @JsonView (JsonViews.Default.class)
 public class User extends AbstractEntity<User>
 {
@@ -46,6 +48,10 @@ public class User extends AbstractEntity<User>
 	@OneToMany (mappedBy = "owner")
 	@OrderBy ("id")
 	private Set<Ticket> tickets;
+	
+	@OneToMany (mappedBy = "user")
+	@OrderBy ("id")
+	private Set<FirebaseToken> firebaseTokens;
 	
 	@Transient
 	public boolean owns(TicketDispenser ticketDispenser)
@@ -79,6 +85,26 @@ public class User extends AbstractEntity<User>
 	public void setOwners(Set<Owner> owners)
 	{
 		this.owners = owners;
+	}
+
+	public Set<Ticket> getTickets()
+	{
+		return tickets;
+	}
+
+	public void setTickets(Set<Ticket> tickets)
+	{
+		this.tickets = tickets;
+	}
+
+	public Set<FirebaseToken> getFirebaseTokens()
+	{
+		return firebaseTokens;
+	}
+
+	public void setFirebaseTokens(Set<FirebaseToken> firebaseTokens)
+	{
+		this.firebaseTokens = firebaseTokens;
 	}
 
 	@Override
