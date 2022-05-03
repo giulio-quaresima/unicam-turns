@@ -1,7 +1,8 @@
+import { Entity } from "./entity";
 import { Ticket } from "./ticket";
 import { TicketDispenser } from "./ticket-dispenser";
 
-export class Session {
+export class Session extends Entity {
     startTime : Date;
     endTime : Date;
     open : boolean;
