@@ -170,6 +170,7 @@ public class Ticket extends AbstractEntity<Ticket>
 		this.session = session;
 	}
 	
+	@JsonView (JsonViews.TicketToUser.class)
 	public User getOwner()
 	{
 		return owner;
