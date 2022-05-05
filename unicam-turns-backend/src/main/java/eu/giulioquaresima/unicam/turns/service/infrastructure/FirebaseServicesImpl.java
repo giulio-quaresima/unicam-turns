@@ -157,7 +157,7 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 //		    			.build()
 //		    		)
 		    		.setFcmOptions(WebpushFcmOptions.builder()
-		    				.setLink("https://main.dr0qfekcvr13w.amplifyapp.com/tabs/tab2").build())
+		    				.setLink("https://unicam-turns-app.giulioquaresima.eu/tabs/tab2").build())
 		    		.build())
 		    .build();
 

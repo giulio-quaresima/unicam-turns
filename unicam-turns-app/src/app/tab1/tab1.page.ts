@@ -12,20 +12,29 @@ import { UserApi } from '../service/user-api';
 export class Tab1Page implements OnInit {
 
   public tickets : Ticket[] = [];
-  public openingDispenserId
+  public openingDispenserId;
+  public showActivateNotificationsButton : boolean = false;
 
   constructor(
-    public userApi : UserApi,
+    private userApi : UserApi,
     private router : Router,
     private activatedRoute : ActivatedRoute,
     private firebase : Firebase
     ) {}
 
   ngOnInit(): void {
-    this.ionViewWillEnter();
     if (this.firebase.supported) {
+      this.showActivateNotificationsButton = true;
+    }
+    this.ionViewWillEnter();
+  }
+
+  activateNotifications() : boolean {
+    if (this.showActivateNotificationsButton) {
+      this.showActivateNotificationsButton = false;
       this.firebase.sendTokenToBackend();
     }
+    return this.firebase.supported;
   }
   
   /**

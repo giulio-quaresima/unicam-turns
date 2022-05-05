@@ -8,6 +8,7 @@ import { UserApi } from './user-api';
 export class Firebase {
 
     private _supported : boolean = false;
+    private _initialized : boolean = false;
     private _firebaseApp : FirebaseApp = null;
     private _messaging : Messaging = null;
 
@@ -22,10 +23,17 @@ export class Firebase {
     }
 
     /**
-     * @returns true if this service is supported an can be used
+     * @returns true if this service is supported an can be used.
      */
     get supported() {
         return this._supported;
+    }
+
+    /**
+     * @returns true if this messaging service is initialized.
+     */
+    get initialized() {
+        return this._initialized;
     }
 
     sendTokenToBackend() { 
@@ -37,6 +45,7 @@ export class Firebase {
                     onMessage(this._messaging, (payload) => {
                         console.log('Message received. ', payload);
                     }); 
+                    this._initialized = true;
                 } else {
                     console.log("No registration token available. Request permission to generate one.");
                 }
