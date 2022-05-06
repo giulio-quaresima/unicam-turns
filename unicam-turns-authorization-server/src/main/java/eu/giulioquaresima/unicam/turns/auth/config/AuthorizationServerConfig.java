@@ -44,10 +44,10 @@ public class AuthorizationServerConfig
 	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.clients.unicam-turns-app.client-id:unicam-turns-app}")
 	private String clientId;
 	
-	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.clients.unicam-turns-app.redirect-uri:http://unicam-turns-app:8100}")
+	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.clients.unicam-turns-app.redirect-uri:https://unicam-turns-app:8100}")
 	private String redirectUri;
 	
-	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.server.issuer-url:http://unicam-turns-authorization-server:9000}")
+	@Value ("${eu.giulioquaresima.unicam.turns.oauth2.openid.server.issuer-url:https://unicam-turns-authorization-server:9000}")
 	private String issuerUrl;
 	
     @Bean

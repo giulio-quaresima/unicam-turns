@@ -17,7 +17,7 @@ export class AppComponent {
   private configureOAuth() {
     this.oauthService.configure(authConfig);
     // this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-
+    window.location.origin
     this.oauthService.loadDiscoveryDocumentAndLogin(
       {
         customHashFragment: window.location.search // https://github.com/manfredsteyer/angular-oauth2-oidc/issues/1023#issuecomment-780063508
@@ -39,10 +39,12 @@ export class AppComponent {
     });
 
     this.oauthService.events
-      .pipe(filter((e) => e.type === 'session_terminated'))
+      //.pipe(filter((e) => e.type === 'session_terminated'))
       .subscribe((e) => {
-        // tslint:disable-next-line:no-console
-        console.debug('Your session has been terminated!');
+        console.log('Received oauth event: ' + e.type);
+        if (e.type === 'session_terminated') {
+          console.debug('Your session has been terminated!');
+        }
       });
   }
 

@@ -24,5 +24,5 @@ public interface UserServices
 	 */
 	User getCurrentUser(boolean createIfAbsent);
 	
-	FirebaseToken assignTokenToCurrentUser(String token);
+	FirebaseToken assignTokenToCurrentUser(FirebaseToken firebaseToken);
 }

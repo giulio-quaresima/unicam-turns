@@ -13,7 +13,6 @@ export class Tab1Page implements OnInit {
 
   public tickets : Ticket[] = [];
   public openingDispenserId;
-  public showActivateNotificationsButton : boolean = false;
 
   constructor(
     private userApi : UserApi,
@@ -23,20 +22,9 @@ export class Tab1Page implements OnInit {
     ) {}
 
   ngOnInit(): void {
-    if (this.firebase.supported) {
-      this.showActivateNotificationsButton = true;
-    }
     this.ionViewWillEnter();
   }
 
-  activateNotifications() : boolean {
-    if (this.showActivateNotificationsButton) {
-      this.showActivateNotificationsButton = false;
-      this.firebase.sendTokenToBackend();
-    }
-    return this.firebase.supported;
-  }
-  
   /**
    * @see https://ionicframework.com/docs/angular/lifecycle
    */
@@ -49,6 +37,9 @@ export class Tab1Page implements OnInit {
   }
 
   openDispenserDetailBy(id : number) {
+    if (! this.firebase.initialized) {
+      this.firebase.initialize();
+    }
     this.router.navigate(['dispenser/' + id], {relativeTo : this.activatedRoute});
   }
 

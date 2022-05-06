@@ -16,6 +16,11 @@ public class FirebaseToken extends AbstractEntity<FirebaseToken>
 	@NotNull
 	private String token;
 	
+	@Column (nullable = false, length = 2048)
+	@NaturalId
+	@NotNull
+	private String origin;
+	
 	@ManyToOne (optional = false)
 	@JoinColumn (nullable = false)
 	@NotNull
@@ -30,6 +35,15 @@ public class FirebaseToken extends AbstractEntity<FirebaseToken>
 		this.token = token;
 	}
 
+	public String getOrigin()
+	{
+		return origin;
+	}
+	public void setOrigin(String origin)
+	{
+		this.origin = origin;
+	}
+	
 	public User getUser()
 	{
 		return user;

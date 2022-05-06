@@ -5,11 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,60 +58,74 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 	}
 	
 	@Override
-	public boolean yourTicketCalled(Ticket ticket) throws FirebaseMessagingException
+	@Async
+	public void yourTicketCalled(Ticket ticket) throws FirebaseMessagingException
 	{
 		if (ticket != null)
 		{
-			User owner = ticket.getOwner();
-			if (owner != null)
+			User ticketOwner = ticket.getOwner();
+			if (ticketOwner != null)
 			{
-				Collection<FirebaseToken> firebaseTokens = owner.getFirebaseTokens();
-				if (!firebaseTokens.isEmpty())
+				Collection<FirebaseToken> firebaseTokens = ticketOwner.getFirebaseTokens();
+				Map<String, List<FirebaseToken>> firebaseTokensGroupByOrigins = 
+						firebaseTokens
+						.stream()
+						.collect(Collectors.groupingBy(FirebaseToken::getOrigin));
+				
+				for (Map.Entry<String, List<FirebaseToken>> entry : firebaseTokensGroupByOrigins.entrySet())
 				{
-					MulticastMessage multicastMessage = 
-							MulticastMessage
-							.builder()
-							.addAllTokens(firebaseTokens.stream().map(FirebaseToken::getToken).collect(Collectors.toSet()))
-							.setNotification(Notification
-									.builder()
-									.setTitle("Il suo ticket è stato appena chiamato!")
-									.setBody(String.format(""
-											+ "Il suo ticket n. %d "
-											+ "prelevato presso il distributore %s "
-											+ "è stato appena chiamato.", 
-											ticket.getPublicNumber(),
-											ticket.getSession().getTicketDispenser().getLabel()))
-									.build()
-									)
-							.setWebpushConfig(WebpushConfig
-									.builder()
-									.setFcmOptions(WebpushFcmOptions
-											.builder()
-											.setLink("https://main.dr0qfekcvr13w.amplifyapp.com/tabs/tab2") // Per ora orribilmente hard-coded, me ne faccio una ragione, ho fretta!!!
-											.build())
-									.build())
-							.build();
-					
-					BatchResponse batchResponse = FirebaseMessaging.getInstance(firebaseApp).sendMulticast(multicastMessage);
-					
-					for (SendResponse sendResponse : batchResponse.getResponses())
+					if ( ! entry.getValue().isEmpty() )
 					{
-						if (sendResponse.isSuccessful())
+						MulticastMessage multicastMessage = build(
+								entry.getKey(), 
+								ticket, 
+								entry.getValue()
+								);
+						BatchResponse batchResponse = FirebaseMessaging.getInstance(firebaseApp).sendMulticast(multicastMessage);
+						if (LOGGER.isInfoEnabled())
 						{
-							LOGGER.info("Successfully send push with id {}", sendResponse.getMessageId());
-						}
-						else
-						{
-							LOGGER.error("Firebase error", sendResponse.getException());
+							for (SendResponse sendResponse : batchResponse.getResponses())
+							{
+								if (sendResponse.isSuccessful())
+								{
+									LOGGER.info("Successfully send push with id {}", sendResponse.getMessageId());
+								}
+								else
+								{
+									LOGGER.error("Firebase error", sendResponse.getException());
+								}
+							}
 						}
 					}
-					
-					return batchResponse.getFailureCount() == 0;
 				}
 			}
 		}
-		
-		return false;
+	}
+	
+	protected MulticastMessage build(String origin, Ticket ticket, Collection<FirebaseToken> firebaseTokens)
+	{
+		return MulticastMessage
+				.builder()
+				.addAllTokens(firebaseTokens.stream().map(FirebaseToken::getToken).collect(Collectors.toSet()))
+				.setNotification(Notification
+						.builder()
+						.setTitle("Il suo ticket è stato appena chiamato!")
+						.setBody(String.format(""
+								+ "Il suo ticket n. %d "
+								+ "prelevato presso il distributore %s "
+								+ "è stato appena chiamato.", 
+								ticket.getPublicNumber(),
+								ticket.getSession().getTicketDispenser().getLabel()))
+						.build()
+						)
+				.setWebpushConfig(WebpushConfig
+						.builder()
+						.setFcmOptions(WebpushFcmOptions
+								.builder()
+								.setLink(origin + "/tabs/tab2") // FIXME Path del ticket dispenser
+								.build())
+						.build())
+				.build();
 	}
 
 	protected Path serviceAccountKey()
@@ -121,10 +138,10 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 		}
 		if (path == null || !Files.isRegularFile(path))
 		{
-			path = Paths.get(System.getProperty("user.home"), "serviceAccountKey.json");
+			path = Paths.get(System.getProperty("user.dir"), "serviceAccountKey.json"); // Working directory
 			if (!Files.isRegularFile(path))
 			{
-				path = Paths.get(System.getProperty("user.dir"), "serviceAccountKey.json");
+				path = Paths.get(System.getProperty("user.home"), "serviceAccountKey.json"); // User's home directory
 			}
 		}
 		if (Files.isRegularFile(path))

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CertificatesLocator implements InitializingBean
 {
-	@Value("${eu.giulioquaresima.unicam.turns.keystore.location:classpath:/eu/giulioquaresima/unicam/turns/auth/security/keystore.jks}")
+	@Value("${eu.giulioquaresima.unicam.turns.keystore.location:classpath:eu/giulioquaresima/unicam/turns/auth/security/keystore.jks}")
 	private Path keyStorePath;
 	
 	@Value("${eu.giulioquaresima.unicam.turns.keystore.password:changeit}")

@@ -1,5 +1,12 @@
 server:
   port: 9000
+  ssl:
+    enabled: true
+    key-alias: https-dev
+    key-store: "classpath:eu/giulioquaresima/unicam/turns/auth/security/keystore.jks"
+    key-store-type: jks
+    key-store-password: changeit
+    key-password: changeit
 logging:
   level:
     root: INFO

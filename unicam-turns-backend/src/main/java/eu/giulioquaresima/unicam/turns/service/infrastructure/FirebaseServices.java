@@ -6,5 +6,5 @@ import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 
 public interface FirebaseServices
 {
-	boolean yourTicketCalled(Ticket ticket) throws FirebaseMessagingException;
+	void yourTicketCalled(Ticket ticket) throws FirebaseMessagingException;
 }

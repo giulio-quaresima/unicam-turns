@@ -18,12 +18,21 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://unicam-turns-authorization-server:9000
+          issuer-uri: https://unicam-turns-authorization-server:9000
 #          jwk-set-uri: http://localhost:9000/oauth2/jwks # Probabilmente non necessario in quanto dovrebbe autoconfigurarsi tramite issuer-uri
 
 server:
   port: 8080
-  
+  ssl:
+    enabled: true
+    key-alias: https-dev
+    key-store: "classpath:eu/giulioquaresima/unicam/turns/security/keystore.jks"
+    key-store-type: jks
+    key-store-password: changeit
+    key-password: changeit
+#    trust-store: "classpath:eu/giulioquaresima/unicam/turns/security/cacerts.jks"
+#    trust-store-password: changeit
+
 logging:
   level:
     root: INFO

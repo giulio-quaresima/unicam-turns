@@ -53,25 +53,27 @@ public class UserServicesImpl implements UserServices
 
 	@Override
 	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
-	public FirebaseToken assignTokenToCurrentUser(String token)
+	public FirebaseToken assignTokenToCurrentUser(FirebaseToken firebaseToken)
 	{
-		Assert.hasText(token, "Un token vuoto che token è?");
+		Assert.notNull(firebaseToken, "firebaseToken");
+		Assert.hasText(firebaseToken.getToken(), "Un token vuoto che token è?");
+		Assert.hasText(firebaseToken.getOrigin(), "empty firebaseToken.origin");
 		
 		User user = getCurrentUser(true);
 		if (user != null)
 		{
-			Optional<FirebaseToken> optional = firebaseTokenRepository.findOneByToken(token);
+			Optional<FirebaseToken> optional = firebaseTokenRepository.findOneByToken(firebaseToken.getToken());
 			if (optional.isPresent())
 			{
-				optional.get().setUser(user);
+				// Se il token era già presente, sovrascrive l'origine
+				optional.get().setOrigin(firebaseToken.getOrigin());
 			}
 			else
 			{
-				FirebaseToken firebaseToken = new FirebaseToken();
-				firebaseToken.setToken(token);
-				firebaseToken.setUser(user);
 				optional = Optional.of(firebaseToken);
 			}
+			// In ogni caso, scrive o sovrascrive l'utente
+			optional.get().setUser(user);
 			return firebaseTokenRepository.save(optional.get());
 		}
 		return null;

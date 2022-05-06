@@ -5,13 +5,13 @@
 export const environment = {
   production: false,
   apiInfo: {
-    protocol: "http",
+    protocol: "https",
     host: "unicam-turns-backend",
     port: 8080,
     url: "http://unicam-turns-backend:8080"
   },
   oauthConfig: {
-    issuer: "http://unicam-turns-authorization-server:9000"
+    issuer: "https://unicam-turns-authorization-server:9000"
   },
   firebase : {
     apiKey: "AIzaSyAVZKYOx5VLbeWrGj0I6q2TxTE0sNTaXfQ",

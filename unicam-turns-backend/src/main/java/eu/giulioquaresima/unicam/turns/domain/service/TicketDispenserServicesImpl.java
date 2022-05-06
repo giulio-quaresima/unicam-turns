@@ -157,7 +157,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 			
 			try
 			{
-				
+				firebaseServices.yourTicketCalled(ticket);
 			}
 			catch (Exception e) 
 			{
