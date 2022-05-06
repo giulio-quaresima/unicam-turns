@@ -43,7 +43,7 @@ $ kill %1
 
 ```
 ### SSL mode
-Dopo #10 bisogna fare le configurazioni opportune (vedi #10) e lanciare la app aggiungendo l'opzione `--ssl`:
+Dopo [#10](https://github.com/giulio-quaresima/unicam-turns/issues/10) bisogna fare le configurazioni opportune (vedi [#10](https://github.com/giulio-quaresima/unicam-turns/issues/10)) e lanciare la app aggiungendo l'opzione `--ssl`:
 ```
 ionic serve --ssl --host=unicam-turns-app
 ```
