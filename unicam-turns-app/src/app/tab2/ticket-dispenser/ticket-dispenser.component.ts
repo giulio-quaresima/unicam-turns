@@ -26,6 +26,13 @@ export class TicketDispenserComponent implements OnInit {
     this.ownerApi.lastSession(dispenserId).then(response => this.currentSession = response.payload);
   }
 
+  public get dispenserUserUrl() : string {
+    if (!! this.ticketDispenser.id) {
+      return window.location.origin + "/tabs/tab1/dispenser/" + this.ticketDispenser.id;
+    }
+    return null;
+  }
+
   sessionStarted() : boolean {
     return !!this.currentSession && this.currentSession.open;
   }

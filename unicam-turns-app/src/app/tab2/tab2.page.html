@@ -23,7 +23,7 @@
     </ion-item>
     <ion-item *ngFor="let ticketDispenser of ticketDispensers;">
       <ion-label>
-        <h2>{{ticketDispenser.label}}</h2>
+        <h2>#{{ticketDispenser.id}}: {{ticketDispenser.label}}</h2>
       </ion-label>
       <ion-button item-right (click)="openDispenserDetail(ticketDispenser.id)">
         <ion-icon name="open-outline" aria-label="Apri"></ion-icon>

@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button (click)="close()"></ion-back-button>
+      <ion-back-button (click)="close()" defaultHref="/tabs/tab2"></ion-back-button>
     </ion-buttons>
     <ion-title>
       {{ticketDispenser?.label}}
@@ -10,6 +10,15 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
+  <ion-card *ngIf="dispenserUserUrl">
+    <qrcode [qrdata]="dispenserUserUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+    <ion-card-header>
+      <a href="{{dispenserUserUrl}}">{{dispenserUserUrl}}</a>
+    </ion-card-header>
+    <ion-card-content>
+    </ion-card-content>
+  </ion-card>
 
   <ion-list>
     <ion-list-header>
@@ -45,7 +54,7 @@
     </ion-button>
     <ion-button (click)="drawTicket()"   *ngIf=" sessionStarted() "   size="large" expand="block" color="primary">
       <ion-icon name="bookmark-outline" aria-label="Ticket"></ion-icon>
-      <ion-icon name="megaphone-outline" aria-label="Serviamo il numero!"></ion-icon>
+      <ion-icon name="caret-up-outline" aria-label="Serviamo il numero!"></ion-icon>
     </ion-button>
     <ion-button (click)="endSession()"   *ngIf=" sessionStarted() "   size="large" expand="block" color="danger">
       <ion-icon name="stop-outline" aria-label="Stop"></ion-icon>

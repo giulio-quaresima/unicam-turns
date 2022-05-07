@@ -31,5 +31,3 @@ server:
 logging:
   level:
     root: INFO
-    
-eu.giulioquaresima.unicam.turns.firebase.credentials=/home/giulio/Cloud/Google/unicam-turns-app/serviceAccountKey.json

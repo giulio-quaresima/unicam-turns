@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-back-button (click)="close()"></ion-back-button>
+        <ion-back-button (click)="close()" defaultHref="/tabs/tab1"></ion-back-button>
       </ion-buttons>
       <ion-title>
         {{userTicketDispenserState?.ticketDispenser?.label}}
@@ -21,10 +21,21 @@
       <ion-card-content>
       </ion-card-content>
     </ion-card>
+
+    <section style="margin: 1em;" *ngIf="! userTicketDispenserState?.withdrawable">
+      <ion-text color="danger">
+        <h3>
+          La distribuzione di biglietti
+          per {{userTicketDispenserState?.ticketDispenser?.label}} 
+          non è attiva in questo momento.
+        </h3>
+      </ion-text>
+    </section>
   
-    <section style="margin: 1em;">
-      <ion-button (click)="withdraw()" *ngIf="userTicketDispenserState?.withdrawable" size="large" expand="block" color="success">
-        <ion-icon name="download-outline" aria-label="Stacca il biglietto"></ion-icon>
+    <section style="margin: 1em;" *ngIf="userTicketDispenserState?.withdrawable">
+      <ion-button (click)="withdraw()" size="large" expand="block" color="success">
+        <ion-icon name="bookmark-outline" aria-label="Ticket"></ion-icon>
+        <ion-icon name="caret-down-outline" aria-label="Stacca il biglietto"></ion-icon>
       </ion-button>
     </section>
   

@@ -87,7 +87,7 @@ public class User extends AbstractEntity<User>
 		this.owners = owners;
 	}
 
-	@JsonView (JsonViews.UserToTicket.class)
+	@JsonIgnore
 	public Set<Ticket> getTickets()
 	{
 		return tickets;

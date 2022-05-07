@@ -8,6 +8,8 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
 import { TicketDispenserComponent } from './ticket-dispenser/ticket-dispenser.component'; 
+import { QRCodeModule } from 'angularx-qrcode';
+
 
 @NgModule({
   imports: [
@@ -15,7 +17,8 @@ import { TicketDispenserComponent } from './ticket-dispenser/ticket-dispenser.co
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    Tab2PageRoutingModule
+    Tab2PageRoutingModule,
+    QRCodeModule
   ],
   declarations: [Tab2Page, TicketDispenserComponent]
 })

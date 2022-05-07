@@ -1,5 +1,6 @@
 package eu.giulioquaresima.unicam.turns.domain.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +73,9 @@ public class UserServicesImpl implements UserServices
 			{
 				optional = Optional.of(firebaseToken);
 			}
-			// In ogni caso, scrive o sovrascrive l'utente
+			// In ogni caso, scrive o sovrascrive l'utente e aggiorna la data
 			optional.get().setUser(user);
+			optional.get().setToggleTime(LocalDateTime.now());
 			return firebaseTokenRepository.save(optional.get());
 		}
 		return null;
