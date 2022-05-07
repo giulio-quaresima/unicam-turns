@@ -1,0 +1,36 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://********:5432/postgres
+    username: postgres
+    password: ********
+
+  jpa:
+    show_sql: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+
+  liquibase:
+    change-log: classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml
+    contexts: development
+    drop-first: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://********
+
+server:
+  port: 8080
+  ssl:
+    enabled: false
+  tomcat:
+    remoteip:
+      protocol-header: X-Forwarded-Proto
+
+logging:
+  level:
+    root: INFO

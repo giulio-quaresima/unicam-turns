@@ -6,20 +6,17 @@ spring:
       hibernate:
         show_sql: false
         format_sql: false
-#        default_schema: turns
 
   liquibase:
     change-log: classpath:eu/giulioquaresima/unicam/turns/liquibase/dbchangelog.xml
     contexts: development
-#    default-schema: turns
     drop-first: true
-# https://docs.spring.io/spring-security/reference/6.0/servlet/oauth2/resource-server/jwt.html#_specifying_the_authorization_server   
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: https://unicam-turns-authorization-server:9000
-#          jwk-set-uri: http://localhost:9000/oauth2/jwks # Probabilmente non necessario in quanto dovrebbe autoconfigurarsi tramite issuer-uri
 
 server:
   port: 8080
@@ -30,9 +27,9 @@ server:
     key-store-type: jks
     key-store-password: changeit
     key-password: changeit
-#    trust-store: "classpath:eu/giulioquaresima/unicam/turns/security/cacerts.jks"
-#    trust-store-password: changeit
 
 logging:
   level:
     root: INFO
+    
+eu.giulioquaresima.unicam.turns.firebase.credentials=/home/giulio/Cloud/Google/unicam-turns-app/serviceAccountKey.json

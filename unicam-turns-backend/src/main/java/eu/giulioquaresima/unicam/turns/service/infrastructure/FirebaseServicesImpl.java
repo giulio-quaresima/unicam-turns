@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,6 +39,9 @@ import eu.giulioquaresima.unicam.turns.domain.entities.User;
 public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(FirebaseServicesImpl.class);
+	
+	@Autowired
+	private Environment environment;
 	
 	private FirebaseApp firebaseApp = null;
 
@@ -131,22 +136,38 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 	protected Path serviceAccountKey()
 	{
 		Path path = null;
+		
 		String GOOGLE_APPLICATION_CREDENTIALS = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
 		if (StringUtils.hasText(GOOGLE_APPLICATION_CREDENTIALS))
 		{
 			path = Paths.get(GOOGLE_APPLICATION_CREDENTIALS);
 		}
+		
 		if (path == null || !Files.isRegularFile(path))
 		{
-			path = Paths.get(System.getProperty("user.dir"), "serviceAccountKey.json"); // Working directory
-			if (!Files.isRegularFile(path))
+			String environmentCredentials = environment.getProperty("eu.giulioquaresima.unicam.turns.firebase.credentials");
+			if (environmentCredentials != null)
 			{
-				path = Paths.get(System.getProperty("user.home"), "serviceAccountKey.json"); // User's home directory
+				path = Paths.get(environmentCredentials);
 			}
 		}
+		
+		if (path == null || !Files.isRegularFile(path))
+		{
+			path = Paths.get(System.getProperty("user.dir"), "config", "serviceAccountKey.json"); // Working directory
+			if (!Files.isRegularFile(path))
+			{
+				path = Paths.get(System.getProperty("user.home"), "config", "serviceAccountKey.json"); // User's home directory
+			}
+		}
+		
 		if (Files.isRegularFile(path))
 		{
 			return path;
+		}
+		else
+		{
+			LOGGER.error("Non riesco a trovare il file {} in nessuna delle location previste, non sarà possibile utilizzare il cloud messaging di Firebase", "serviceAccountKey.json");
 		}
 		
 		return null;

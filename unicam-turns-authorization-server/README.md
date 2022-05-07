@@ -1,6 +1,13 @@
 # Authorization server OAuth2 - OpenID Connect
 
-## Configuration discoer URLs
+## Prod deployment
+
+La dir /config (VOLUME /config in Docker) dovrà contenere:
+
+* un file `application.properties` il cui contenuto sarà basato sul template `application-prod.properties`;
+* un file `keystore.jks` che conterrà il certificato utilizzato da `eu.giulioquaresima.unicam.turns.auth.security.CertificatesLocator` per ottenere i certificati utilizzati per firmare i token JWT.
+
+## Configuration discover URLs
 
 [http://localhost:9000/.well-known/openid-configuration](http://localhost:9000/.well-known/openid-configuration)
 
