@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MessagePayload } from 'firebase/messaging';
 import { Ticket } from '../domain/ticket';
 import { Firebase } from '../service/firebase';
 import { UserApi } from '../service/user-api';
@@ -19,7 +20,9 @@ export class Tab1Page implements OnInit {
     private router : Router,
     private activatedRoute : ActivatedRoute,
     private firebase : Firebase
-    ) {}
+    ) {
+      firebase.subscribe(payload => this.messageReceived(payload));
+    }
 
   ngOnInit(): void {
     this.ionViewWillEnter();
@@ -46,6 +49,13 @@ export class Tab1Page implements OnInit {
   openDispenserDetail() {
     this.openDispenserDetailBy(this.openingDispenserId);
     this.openingDispenserId = null;
+  }
+
+  messageReceived(messagePayload : MessagePayload) {
+    if (messagePayload.data['tag'] === 'yourTicketCalled') {
+      let id = parseInt(messagePayload.data['ticketDispenserId']);
+      this.openDispenserDetailBy(id);
+    }
   }
 
 }

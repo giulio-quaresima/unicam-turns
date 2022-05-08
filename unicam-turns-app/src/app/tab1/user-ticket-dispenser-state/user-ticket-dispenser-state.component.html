@@ -12,10 +12,22 @@
   
   <ion-content [fullscreen]="true">
 
+    <section style="margin: 1em;" *ngIf="userTicketDispenserState?.withdrawable">
+      <ion-text color="primary" *ngIf="! itsYourTurn && ! youLostYourTurn && userTicketDispenserState.lastDrewTicket">
+        <h2>Serviamo il numero #{{userTicketDispenserState.lastDrewTicket?.publicNumber}}</h2>
+      </ion-text>
+      <ion-text color="success" *ngIf="itsYourTurn">
+        <h2>È il tuo turno!</h2>
+      </ion-text>
+      <ion-text color="danger" *ngIf="youLostYourTurn">
+        <h2>Mi dispiace ma hai perso il tuo turno. Se vuoi, puoi staccare il prossimo numero #{{userTicketDispenserState.nextWithdrawableTicketPublicNumber}}</h2>
+      </ion-text>
+    </section>
+
     <ion-card *ngIf="userTicketDispenserState?.currentUserAliveTicket">
       <qrcode [qrdata]="userTicketDispenserState.currentUserAliveTicket?.uniqueIdentifier" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
       <ion-card-header>
-        <ion-card-subtitle>Ticket</ion-card-subtitle>
+        <ion-card-subtitle>Il tuo numero</ion-card-subtitle>
         <ion-card-title>#{{userTicketDispenserState.currentUserAliveTicket?.publicNumber}}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
@@ -36,6 +48,9 @@
       <ion-button (click)="withdraw()" size="large" expand="block" color="success">
         <ion-icon name="bookmark-outline" aria-label="Ticket"></ion-icon>
         <ion-icon name="caret-down-outline" aria-label="Stacca il biglietto"></ion-icon>
+        <span *ngIf="userTicketDispenserState.nextWithdrawableTicketPublicNumber">
+          #{{userTicketDispenserState.nextWithdrawableTicketPublicNumber}}
+        </span>
       </ion-button>
     </section>
   

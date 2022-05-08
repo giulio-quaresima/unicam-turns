@@ -4,6 +4,7 @@ import { getMessaging, onMessage, getToken, Messaging, Observer, MessagePayload,
 import { Injectable, OnInit } from '@angular/core';
 import { UserApi } from './user-api';
 import { ErrorFn, CompleteFn } from '@firebase/util';
+import { PartialObserver, Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class Firebase implements Observer<MessagePayload> {
@@ -12,6 +13,8 @@ export class Firebase implements Observer<MessagePayload> {
     private _initialized : boolean = false;
     private _firebaseApp : FirebaseApp = null;
     private _messaging : Messaging = null;
+
+    private messagePayloadSource = new Subject<MessagePayload>();
 
     constructor(private userApi : UserApi) {
         try {
@@ -56,11 +59,15 @@ export class Firebase implements Observer<MessagePayload> {
         ;
     }
 
+    public subscribe(observer : (value : MessagePayload) => void) {
+        this.messagePayloadSource.asObservable().subscribe(observer);
+    }
 
     // Observer signatures ////////////////
 
     next : NextFn<MessagePayload> = function(payload : MessagePayload) : void {
         console.log("Ho appena ricevuto questo messaggio: ", payload);
+        this.messagePayloadSource.next(payload);
     };
 
     error : ErrorFn = function(error : Error) : void {

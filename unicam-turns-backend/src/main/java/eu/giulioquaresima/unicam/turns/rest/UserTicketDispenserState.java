@@ -56,6 +56,39 @@ public class UserTicketDispenserState
 		this.currentUserAliveTicket = currentUserAliveTicket;
 	}
 	
+	@Nullable
+	public Ticket getLastDrewTicket()
+	{
+		Session session = getCurrentSession();
+		if (session != null)
+		{
+			return session.getLastDrewTicket();
+		}
+		return null;
+	}
+	
+	@Nullable
+	public Ticket getLastWithdrewTicket()
+	{
+		Session session = getCurrentSession();
+		if (session != null)
+		{
+			return session.getLastWithdrewTicket();
+		}
+		return null;
+	}
+	
+	@Nullable
+	public long getNextWithdrawableTicketPublicNumber()
+	{
+		Ticket lastWithdrewTicket = getLastWithdrewTicket();
+		if (lastWithdrewTicket != null)
+		{
+			return lastWithdrewTicket.getPublicNumber() + 1;
+		}
+		return 1;
+	}
+	
 	public boolean isWithdrawable()
 	{
 		Session currentSession = getCurrentSession();

@@ -6,6 +6,9 @@ export class UserTicketDispenserState {
     ticketDispenser : TicketDispenser;
     currentSession : Session;
     currentUserAliveTicket : Ticket;
+    lastWithdrewTicket : Ticket;
+    lastDrewTicket : Ticket;
+    nextWithdrawableTicketPublicNumber : number;
     exists : boolean;
     withdrawable : boolean;
 }

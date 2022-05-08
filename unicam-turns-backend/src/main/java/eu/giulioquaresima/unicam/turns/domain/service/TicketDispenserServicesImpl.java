@@ -120,9 +120,23 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 			session = ticketDispenser.createSession();
 			session.start();
 			session = sessionRepository.save(session);
+			
+			firebaseToggle(ticketDispenser);
 		}
 		
 		return session;
+	}
+
+	protected void firebaseToggle(TicketDispenser ticketDispenser)
+	{
+		try
+		{
+			firebaseServices.toggle(ticketDispenser);
+		}
+		catch (Exception e) 
+		{
+			LOGGER.error("Errore nel tentativo di push notification", e);
+		}
 	}
 
 	@Override
@@ -137,6 +151,8 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 		{
 			session.end();
 			session = sessionRepository.save(session);
+			
+			firebaseToggle(ticketDispenser);
 		}
 		
 		return session;
@@ -157,6 +173,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 			
 			try
 			{
+				firebaseToggle(ticketDispenser);
 				firebaseServices.yourTicketCalled(ticket);
 			}
 			catch (Exception e) 
@@ -181,7 +198,9 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 		
 		if (session != null && session.isOpen())
 		{
-			return ticketRepository.save(session.withdraw(user));
+			Ticket ticket = ticketRepository.save(session.withdraw(user));
+			firebaseToggle(ticketDispenser);
+			return ticket;
 		}
 		
 		return null;
