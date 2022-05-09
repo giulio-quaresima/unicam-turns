@@ -17,18 +17,18 @@ public interface FirebaseServices
 	 * is changed: the "stakeholders" are {@link TicketDispenser#getOwner()}
 	 * and each waiting {@link Ticket#getOwner()}; the UI
 	 * should refresh all the interested pages when receives such a message.
+	 * @param ticketDispenserId TODO
 	 * 
-	 * @param ticketDispenser
 	 * @throws FirebaseMessagingException 
 	 */
-	void toggle(TicketDispenser ticketDispenser) throws FirebaseMessagingException;
+	void toggle(long ticketDispenserId) throws FirebaseMessagingException;
 	
 	/**
 	 * Notify the ticket's owner that its ticket
 	 * has been drew!
+	 * @param ticketId TODO
 	 * 
-	 * @param ticket
 	 * @throws FirebaseMessagingException
 	 */
-	void yourTicketCalled(Ticket ticket) throws FirebaseMessagingException;
+	void yourTicketCalled(long ticketId) throws FirebaseMessagingException;
 }

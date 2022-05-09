@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -39,6 +40,8 @@ import eu.giulioquaresima.unicam.turns.domain.entities.Session;
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
 import eu.giulioquaresima.unicam.turns.domain.entities.TicketDispenser;
 import eu.giulioquaresima.unicam.turns.domain.entities.User;
+import eu.giulioquaresima.unicam.turns.repository.TicketDispenserRepository;
+import eu.giulioquaresima.unicam.turns.repository.TicketRepository;
 import eu.giulioquaresima.unicam.turns.utils.CollectionUtils;
 
 @Service
@@ -51,6 +54,12 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 	
 	@Autowired
 	private Environment environment;
+	
+	@Autowired
+	private TicketRepository ticketRepository;
+	
+	@Autowired
+	private TicketDispenserRepository ticketDispenserRepository;
 	
 	private FirebaseApp firebaseApp = null;
 
@@ -83,8 +92,10 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 	
 	@Override
 	@Async
-	public void toggle(TicketDispenser ticketDispenser) throws FirebaseMessagingException
+	@Transactional (readOnly = true)
+	public void toggle(long ticketDispenserId) throws FirebaseMessagingException
 	{
+		TicketDispenser ticketDispenser = ticketDispenserRepository.getById(ticketDispenserId);
 		if (ticketDispenser != null)
 		{
 			Set<FirebaseToken> firebaseTokens = new HashSet<>();
@@ -122,8 +133,10 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 
 	@Override
 	@Async
-	public void yourTicketCalled(Ticket ticket) throws FirebaseMessagingException
+	@Transactional (readOnly = true)
+	public void yourTicketCalled(long ticketId) throws FirebaseMessagingException
 	{
+		Ticket ticket = ticketRepository.getById(ticketId);
 		if (ticket != null)
 		{
 			User ticketOwner = ticket.getOwner();

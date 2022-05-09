@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -23,6 +22,7 @@ import eu.giulioquaresima.unicam.turns.repository.UserRepository;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Service
+@Transactional (readOnly = false, isolation = Isolation.SERIALIZABLE)
 public class UserServicesImpl implements UserServices
 {
 	@Autowired
@@ -32,7 +32,6 @@ public class UserServicesImpl implements UserServices
 	private FirebaseTokenRepository firebaseTokenRepository;
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	public User getCurrentUser(boolean createIfAbsent)
 	{
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -47,16 +46,13 @@ public class UserServicesImpl implements UserServices
 			{
 				User user = new User();
 				user.setUsername(authentication.getName());
-				user = userRepository.save(user);
-				userRepository.flush();
-				return user;
+				return userRepository.saveAndFlush(user);
 			}
 		}
 		return null;
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	public FirebaseToken assignTokenToCurrentUser(FirebaseToken firebaseToken)
 	{
 		Assert.notNull(firebaseToken, "firebaseToken");

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -25,7 +25,7 @@ import eu.giulioquaresima.unicam.turns.repository.UserRepository;
 import eu.giulioquaresima.unicam.turns.service.infrastructure.FirebaseServices;
 
 @Service
-@Transactional (readOnly = true, propagation = Propagation.SUPPORTS)
+@Transactional (readOnly = false, isolation = Isolation.SERIALIZABLE)
 public class TicketDispenserServicesImpl implements TicketDispenserServices
 {
 	private final static Logger LOGGER = LoggerFactory.getLogger(TicketDispenserServicesImpl.class);
@@ -71,7 +71,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
 	public TicketDispenser create(TicketDispenser template) throws IllegalArgumentException, IllegalStateException
 	{
 		Assert.notNull(template, "template required");
@@ -108,7 +107,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
 	public Session start(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
@@ -131,7 +129,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	{
 		try
 		{
-			firebaseServices.toggle(ticketDispenser);
+			firebaseServices.toggle(ticketDispenser.getId());
 		}
 		catch (Exception e) 
 		{
@@ -140,7 +138,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
 	public Session stop(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
@@ -159,7 +156,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
 	public Ticket draw(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");
@@ -174,7 +170,7 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 			try
 			{
 				firebaseToggle(ticketDispenser);
-				firebaseServices.yourTicketCalled(ticket);
+				firebaseServices.yourTicketCalled(ticket.getId());
 			}
 			catch (Exception e) 
 			{
@@ -188,7 +184,6 @@ public class TicketDispenserServicesImpl implements TicketDispenserServices
 	}
 	
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
 	public Ticket withdraw(TicketDispenser ticketDispenser)
 	{
 		Assert.notNull(ticketDispenser, "ticketDispenser required");

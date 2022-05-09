@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.giulioquaresima.unicam.turns.domain.entities.Ticket;
@@ -18,7 +18,7 @@ import eu.giulioquaresima.unicam.turns.repository.TicketRepository;
  * @author Giulio Quaresima (giulio.quaresima--at--gmail.com)
  */
 @Service
-@Transactional (readOnly = true, propagation = Propagation.SUPPORTS)
+@Transactional (readOnly = false, isolation = Isolation.SERIALIZABLE)
 public class TicketServicesImpl implements TicketServices
 {
 	@Autowired
