@@ -21,7 +21,6 @@ public class FirebaseToken extends AbstractEntity<FirebaseToken>
 	private String token;
 	
 	@Column (nullable = false, length = 2048)
-	@NaturalId
 	@NotNull
 	private String origin;
 	

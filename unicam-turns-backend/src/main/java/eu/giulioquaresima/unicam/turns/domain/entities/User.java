@@ -51,7 +51,7 @@ public class User extends AbstractEntity<User>
 	
 	@OneToMany (mappedBy = "user")
 	@OrderBy ("id")
-	private Set<FirebaseToken> firebaseTokens;
+	private Set<FirebaseToken> firebaseTokens = new HashSet<>();
 	
 	@Transient
 	public boolean owns(TicketDispenser ticketDispenser)

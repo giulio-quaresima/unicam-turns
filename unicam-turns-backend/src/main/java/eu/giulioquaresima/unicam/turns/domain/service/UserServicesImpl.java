@@ -56,12 +56,13 @@ public class UserServicesImpl implements UserServices
 	}
 
 	@Override
-	@Transactional (readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
 	public FirebaseToken assignTokenToCurrentUser(FirebaseToken firebaseToken)
 	{
 		Assert.notNull(firebaseToken, "firebaseToken");
 		Assert.hasText(firebaseToken.getToken(), "Un token vuoto che token è?");
 		Assert.hasText(firebaseToken.getOrigin(), "empty firebaseToken.origin");
+		Assert.isNull(firebaseToken.getId(), "Only transient instance!");
 		
 		User user = getCurrentUser(true);
 		if (user != null)

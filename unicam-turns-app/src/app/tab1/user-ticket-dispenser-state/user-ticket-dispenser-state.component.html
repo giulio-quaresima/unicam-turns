@@ -12,6 +12,12 @@
   
   <ion-content [fullscreen]="true">
 
+    <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+      <ion-fab-button (click)="reload()" color="secondary">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
     <section style="margin: 1em;" *ngIf="userTicketDispenserState?.withdrawable">
       <ion-text color="primary" *ngIf="! itsYourTurn && ! youLostYourTurn && userTicketDispenserState.lastDrewTicket">
         <h2>Serviamo il numero #{{userTicketDispenserState.lastDrewTicket?.publicNumber}}</h2>

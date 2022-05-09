@@ -11,6 +11,12 @@
 
 <ion-content [fullscreen]="true">
 
+  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+    <ion-fab-button (click)="reload()" color="secondary">
+      <ion-icon name="refresh-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <ion-card *ngIf="dispenserUserUrl">
     <qrcode [qrdata]="dispenserUserUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
     <ion-card-header>

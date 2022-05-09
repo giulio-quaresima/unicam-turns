@@ -173,7 +173,7 @@ public class FirebaseServicesImpl implements FirebaseServices, InitializingBean
 						.builder()
 						.setFcmOptions(WebpushFcmOptions
 								.builder()
-								.setLink(origin + "/tabs/tab2") // FIXME Path del ticket dispenser
+								.setLink(origin + "/tabs/tab2/dispenser/" + ticket.getSession().getTicketDispenser().getId())
 								.build())
 						.build())
 				.build();
